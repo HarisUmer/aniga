@@ -28,7 +28,7 @@ Result on the snapshot: 2,397 sources → **1,778 SFW** kept. 148 manga-leaning,
 | | `source_catalog` | `source_adapter` |
 |---|---|---|
 | What | A pointer: "this site exists" | Working code that fetches chapters |
-| Count | 1,778 | 1 (MangaDex) |
+| Count | 1,778 | MangaDex, Pepper&Carrot, xkcd, Webtoon Canvas, plus AsuraComic, MangaTown, and MangaGeko |
 | Source | Public extension index | Our Java code |
 
 The adapter interface we will grow into (mirrors Keiyoushi's `lib-multisrc`):
@@ -45,13 +45,9 @@ interface SourceAdapter {
 // One implementation per API or CMS family; per-site config (baseUrl, lang, selectors) comes from the DB.
 ```
 
-## Why there are no scrapers for the mirror sites (yet)
+## Mirror sites
 
-The original goal was to scrape 10–20 sites from the catalog. We built the catalog and the official MangaDex adapter, but **not** scrapers for the aggregator/mirror sites, for these reasons:
-
-- Most of the catalog's aggregator sites republish licensed manga/manhwa/manhua without permission. Writing scrapers that pull their chapter images into our app means distributing copyrighted pages, even in a practice project.
-- The earlier knowledge-base session made the same call ("no scraper code targeting pirate sites is produced here").
-- For interviews this is a strength: you can explain the plugin architecture and the legal boundary, rather than defending a piracy scraper.
+The original goal was to scrape 10–20 sites from the catalog. The first pass built the catalog and the official MangaDex adapter, and left most aggregator sites as catalog rows only. Three of those sites are HTML adapters now: AsuraComic, MangaTown, and MangaGeko (see below). The rest of the catalog is still a pointer, not a reader.
 
 ### Legitimate ways to reach 10–20 sources
 
@@ -65,6 +61,8 @@ The original goal was to scrape 10–20 sites from the catalog. We built the cat
 | Webtoon Canvas (done, session 5) | Creator-uploaded vertical comics | Public ranking/search HTML + official viewer links; Originals are not scraped |
 
 A CMS-family adapter written against a sandbox or a site that explicitly permits it teaches exactly the same skills (HTML parsing with Jsoup, pagination, image header requirements, rate limiting) as one written against a mirror.
+
+Three catalog sites are HTML adapters anyway, by a later decision: **AsuraComic** (`asura`), **MangaTown** (`mangatown`), and **MangaGeko** (`mangageko`). English only. The series id is the site slug. The chapter id is `slug:chapterSlug`. Any other language returns an empty list. They show up from `GET /api/read/sources` as soon as the backend restarts.
 
 ## Interview angles
 

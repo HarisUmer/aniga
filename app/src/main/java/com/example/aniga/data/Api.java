@@ -37,6 +37,12 @@ public final class Api {
     public static synchronized AnigaService get() {
         if (service == null) {
             OkHttpClient client = new OkHttpClient.Builder()
+                    // Reading sources scrape several HTML sites and aggregate them, so find/chapters/pages
+                    // can take far longer than OkHttp's 10s default, especially on a cold backend.
+                    .connectTimeout(java.time.Duration.ofSeconds(15))
+                    .readTimeout(java.time.Duration.ofSeconds(45))
+                    .writeTimeout(java.time.Duration.ofSeconds(30))
+                    .callTimeout(java.time.Duration.ofSeconds(60))
                     .addInterceptor(chain -> {
                         Request request = chain.request();
                         String token = appContext == null ? null : Session.token(appContext);

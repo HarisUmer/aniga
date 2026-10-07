@@ -25,7 +25,7 @@ public class ChatController {
     public record GroupRequest(String title, List<String> usernames) {
     }
 
-    public record PostMessage(String body) {
+    public record PostMessage(String body, ChatService.Share share) {
     }
 
     private final ChatService chat;
@@ -64,7 +64,7 @@ public class ChatController {
 
     @PostMapping("/rooms/{id}/messages")
     public ChatService.Message post(HttpServletRequest request, @PathVariable long id, @RequestBody PostMessage body) {
-        return chat.post(AuthFilter.userId(request), id, body.body());
+        return chat.post(AuthFilter.userId(request), id, body.body(), body.share());
     }
 
     /** Live messages for this room. History is {@code GET .../messages}; this stream is what NOTIFY wakes. */

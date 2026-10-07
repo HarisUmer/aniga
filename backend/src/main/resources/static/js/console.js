@@ -681,18 +681,27 @@ function rateRow(mid) {
   const cur = state.ratings.get(mid);
   return `<div class="rate" data-mid="${mid}">${[...Array(10)].map((_, i) => `<button class="${cur && i < cur ? 'on' : ''}" data-s="${i + 1}" title="${i + 1}">${i + 1}</button>`).join('')}</div>`;
 }
+function paintRate(row, score) {
+  row.querySelectorAll('button').forEach((b, i) => b.classList.toggle('on', !!score && i < score));
+}
 function wireRating(root) {
-  root.querySelectorAll('.rate').forEach(row => row.querySelectorAll('button').forEach(b => b.onclick = async (ev) => {
-    ev.stopPropagation();
-    const mid = +row.dataset.mid, s = +b.dataset.s, cur = state.ratings.get(mid);
-    try {
-      if (cur === s) await api(`/api/users/${state.user}/ratings/${mid}`, { method: 'DELETE' });
-      else await api(`/api/users/${state.user}/ratings/${mid}`, { method: 'PUT', body: JSON.stringify({ score: s }) });
-      await refreshRatings();
-      if (cur !== s && s >= 8) burstAt(b, 12);
-      row.outerHTML = rateRow(mid); wireRating(root);
-    } catch (e) { alert(e.message); }
-  }));
+  root.querySelectorAll('.rate').forEach(row => {
+    if (row.dataset.wired) return;
+    row.dataset.wired = '1';
+    row.querySelectorAll('button').forEach(b => b.onclick = async (ev) => {
+      ev.stopPropagation();
+      if (!row.isConnected) return;
+      const mid = +row.dataset.mid, s = +b.dataset.s, cur = state.ratings.get(mid);
+      try {
+        if (cur === s) await api(`/api/users/${state.user}/ratings/${mid}`, { method: 'DELETE' });
+        else await api(`/api/users/${state.user}/ratings/${mid}`, { method: 'PUT', body: JSON.stringify({ score: s }) });
+        await refreshRatings();
+        if (!row.isConnected) return;
+        if (cur !== s && s >= 8) burstAt(b, 12);
+        paintRate(row, state.ratings.get(mid) || 0);
+      } catch (e) { alert(e.message); }
+    });
+  });
 }
 /* Catalog grid: pages of 48 appended by an IntersectionObserver sentinel (infinite scroll over all 900 titles).
  * Cells off-screen are skipped by content-visibility, so a long scroll stays cheap. */
@@ -725,8 +734,10 @@ async function moreMedia() {
   finally {
     if (gen === cat.gen) {
       cat.busy = false;
-      $('catMore').innerHTML = cat.done ? `<span class="kicker">${cat.offset} titles</span>` : '<div class="sentinel"></div>';
-      const s = $('catMore').querySelector('.sentinel');
+      const more = $('catMore');
+      if (!more) return;
+      more.innerHTML = cat.done ? `<span class="kicker">${cat.offset} titles</span>` : '<div class="sentinel"></div>';
+      const s = more.querySelector('.sentinel');
       catObserver.disconnect(); if (s) catObserver.observe(s);
     }
   }
@@ -894,7 +905,8 @@ async function findOnSources(ctx) {
   out.innerHTML = planeLoader('Looking on every reading source…');
   try {
     const aliases = [ctx.m && ctx.m.nativeTitle, ctx.romaji].filter(Boolean).join('|');
-    const hits = await api(`/api/read/find?title=${encodeURIComponent(ctx.title)}&lang=${readLang()}${aliases ? '&aliases=' + encodeURIComponent(aliases) : ''}`);
+    const type = (ctx.m && ctx.m.mediaType) || ctx.t || '';
+    const hits = await api(`/api/read/find?title=${encodeURIComponent(ctx.title)}&lang=${readLang()}${aliases ? '&aliases=' + encodeURIComponent(aliases) : ''}${type ? '&type=' + encodeURIComponent(type) : ''}`);
     if (!hits.length) { out.innerHTML = ballStatus(`No chapters on the reading sources for “${ctx.title}”. Try another language in Discover.`, ctx.tc); return; }
     $('dSrc').innerHTML = hits.slice(0, 8).map((h, i) => {
       const n = h.chapterCount != null ? `<span class="n">${h.chapterCount} CH</span>` : '';

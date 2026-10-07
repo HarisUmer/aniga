@@ -40,6 +40,25 @@
                 app:singleSelection="true" />
         </HorizontalScrollView>
 
+        <TextView
+            android:id="@+id/continue_label"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="18dp"
+            android:text="@string/foryou_continue"
+            android:textAppearance="@style/TextAppearance.Aniga.Headline"
+            android:visibility="gone" />
+
+        <androidx.recyclerview.widget.RecyclerView
+            android:id="@+id/continue_list"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:layout_marginHorizontal="-20dp"
+            android:layout_marginTop="8dp"
+            android:clipToPadding="false"
+            android:paddingHorizontal="20dp"
+            android:visibility="gone" />
+
         <LinearLayout
             android:id="@+id/taste_card"
             android:layout_width="match_parent"
@@ -101,80 +120,21 @@
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
                 android:layout_marginTop="6dp"
-                android:animateLayoutChanges="true"
                 android:orientation="vertical" />
 
-            <TextView
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="6dp"
-                android:text="@string/foryou_model_hint"
-                android:textAppearance="@style/TextAppearance.Aniga.Meta" />
-
-            <LinearLayout
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:gravity="center_vertical"
-                android:orientation="horizontal">
-
-                <TextView
-                    android:layout_width="0dp"
-                    android:layout_height="wrap_content"
-                    android:layout_weight="1"
-                    android:text="@string/foryou_changes"
-                    android:textAppearance="@style/TextAppearance.Aniga.Kicker" />
-
-                <com.google.android.material.button.MaterialButton
-                    android:id="@+id/reset"
-                    style="@style/Widget.Aniga.Button.Ghost"
-                    android:layout_width="wrap_content"
-                    android:layout_height="32dp"
-                    android:insetTop="0dp"
-                    android:insetBottom="0dp"
-                    android:minWidth="0dp"
-                    android:paddingHorizontal="10dp"
-                    android:text="@string/foryou_reset"
-                    android:textSize="11sp" />
-            </LinearLayout>
-
-            <LinearLayout
-                android:id="@+id/changes"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                android:animateLayoutChanges="true"
-                android:orientation="vertical" />
-
-            <TextView
+            <com.google.android.material.button.MaterialButton
+                android:id="@+id/reset"
+                style="@style/Widget.Aniga.Button.Ghost"
                 android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="16dp"
-                android:text="@string/foryou_liked"
-                android:textAppearance="@style/TextAppearance.Aniga.Kicker"
-                android:textColor="@color/taste_like" />
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/liked"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:chipSpacingVertical="2dp" />
-
-            <TextView
-                android:layout_width="wrap_content"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="10dp"
-                android:text="@string/foryou_disliked"
-                android:textAppearance="@style/TextAppearance.Aniga.Kicker"
-                android:textColor="@color/taste_dislike" />
-
-            <com.google.android.material.chip.ChipGroup
-                android:id="@+id/disliked"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_marginTop="4dp"
-                app:chipSpacingVertical="2dp" />
+                android:layout_height="32dp"
+                android:layout_gravity="end"
+                android:layout_marginTop="12dp"
+                android:insetTop="0dp"
+                android:insetBottom="0dp"
+                android:minWidth="0dp"
+                android:paddingHorizontal="10dp"
+                android:text="@string/foryou_reset"
+                android:textSize="11sp" />
         </LinearLayout>
 
         <TextView

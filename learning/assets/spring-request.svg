@@ -1,0 +1,51 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 300" role="img" aria-labelledby="title desc">
+  <title id="title">One request through Spring Boot</title>
+  <desc id="desc">A request passes the auth filter, then a controller, a service, and JdbcClient, before SQL reaches Postgres.</desc>
+  <rect width="960" height="300" fill="#F6F1E7"/>
+  <text x="40" y="40" fill="#221C17" font-family="Georgia, Palatino, serif" font-size="22">One request, five stops</text>
+  <text x="40" y="64" fill="#85796A" font-family="Segoe UI, sans-serif" font-size="13">Spring creates these objects at startup and calls them in this order.</text>
+
+  <g font-family="Segoe UI, sans-serif" font-size="13" fill="#221C17">
+    <rect x="32" y="100" width="150" height="88" rx="3" fill="#221C17"/>
+    <text x="107" y="132" text-anchor="middle" fill="#F1E9DA" font-family="Georgia, Palatino, serif" font-size="15">Request</text>
+    <text x="107" y="156" text-anchor="middle" fill="#B9AD9A" font-size="11">GET /api/people/matches</text>
+    <text x="107" y="172" text-anchor="middle" fill="#B9AD9A" font-size="11">Authorization: Bearer</text>
+
+    <line x1="182" y1="144" x2="208" y2="144" stroke="#E5532D" stroke-width="1.5"/>
+    <polygon points="208,144 200,139 200,149" fill="#E5532D"/>
+
+    <rect x="210" y="92" width="160" height="104" rx="3" fill="#F1E9DA" stroke="#E5532D" stroke-width="2"/>
+    <text x="290" y="118" text-anchor="middle" fill="#E5532D" font-size="11">1 · FILTER</text>
+    <text x="290" y="142" text-anchor="middle" font-family="Georgia, Palatino, serif" font-size="15">AuthFilter</text>
+    <text x="290" y="164" text-anchor="middle" fill="#85796A" font-size="11">401 without a session</text>
+    <text x="290" y="180" text-anchor="middle" fill="#85796A" font-size="11">403 if the id is not yours</text>
+
+    <line x1="370" y1="144" x2="396" y2="144" stroke="#221C17" stroke-width="1.5"/>
+    <polygon points="396,144 388,139 388,149" fill="#221C17"/>
+
+    <rect x="398" y="100" width="150" height="88" rx="3" fill="#F1E9DA" stroke="#221C17"/>
+    <text x="473" y="126" text-anchor="middle" fill="#85796A" font-size="11">2 · CONTROLLER</text>
+    <text x="473" y="150" text-anchor="middle" font-family="Georgia, Palatino, serif" font-size="15">PeopleController</text>
+    <text x="473" y="170" text-anchor="middle" fill="#85796A" font-size="11">The URL lives here</text>
+
+    <line x1="548" y1="144" x2="574" y2="144" stroke="#221C17" stroke-width="1.5"/>
+    <polygon points="574,144 566,139 566,149" fill="#221C17"/>
+
+    <rect x="576" y="100" width="150" height="88" rx="3" fill="#F1E9DA" stroke="#221C17"/>
+    <text x="651" y="126" text-anchor="middle" fill="#85796A" font-size="11">3 · SERVICE</text>
+    <text x="651" y="150" text-anchor="middle" font-family="Georgia, Palatino, serif" font-size="15">PeopleService</text>
+    <text x="651" y="170" text-anchor="middle" fill="#85796A" font-size="11">The matching rule</text>
+
+    <line x1="726" y1="144" x2="752" y2="144" stroke="#221C17" stroke-width="1.5"/>
+    <polygon points="752,144 744,139 744,149" fill="#221C17"/>
+
+    <rect x="754" y="100" width="170" height="88" rx="3" fill="#2F6F52"/>
+    <text x="839" y="126" text-anchor="middle" fill="#D7E8DF" font-size="11">4 · SQL</text>
+    <text x="839" y="150" text-anchor="middle" fill="#F6F1E7" font-family="Georgia, Palatino, serif" font-size="15">JdbcClient</text>
+    <text x="839" y="170" text-anchor="middle" fill="#D7E8DF" font-size="11">Postgres</text>
+  </g>
+
+  <text x="40" y="230" fill="#221C17" font-family="Segoe UI, sans-serif" font-size="13">The filter runs first, for every call. A controller that forgets to check still cannot see another person's shelf.</text>
+  <text x="40" y="254" fill="#85796A" font-family="Segoe UI, sans-serif" font-size="13">application.yml names the database and the session secret. On the server those values come from the environment, not from the file in git.</text>
+  <text x="40" y="278" fill="#85796A" font-family="Segoe UI, sans-serif" font-size="13">Errors leave as problem+json: a status and a detail sentence. The sign-in screen prints that detail.</text>
+</svg>

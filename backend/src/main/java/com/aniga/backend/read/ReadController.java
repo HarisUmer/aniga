@@ -121,10 +121,11 @@ public class ReadController {
      */
     @GetMapping("/find")
     public List<SourceAdapter.Series> find(@RequestParam String title, @RequestParam(required = false) String lang,
-                                           @RequestParam(required = false) String aliases) {
+                                           @RequestParam(required = false) String aliases,
+                                           @RequestParam(required = false) String type) {
         if (title.isBlank()) {
             throw new IllegalArgumentException("title must not be blank");
         }
-        return finder.find(title.trim(), lang, aliases);
+        return finder.find(title.trim(), lang, aliases, type);
     }
 }

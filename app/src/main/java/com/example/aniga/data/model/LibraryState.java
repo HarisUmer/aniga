@@ -11,11 +11,26 @@ public class LibraryState {
         public final String status;
         public final Integer progress;
         public final Integer score;
+        public String sourceCode;
+        public String seriesId;
+        public String seriesTitle;
+        public String sourceLang;
+        public Double chaptersKnown;
 
         public Update(String status, Integer progress, Integer score) {
             this.status = status;
             this.progress = progress;
             this.score = score;
+        }
+
+        /** Pins the reading source so Home continue and Library updates can follow the right site. */
+        public Update source(String code, String seriesId, String title, String lang, Double chaptersKnown) {
+            this.sourceCode = code;
+            this.seriesId = seriesId;
+            this.seriesTitle = title;
+            this.sourceLang = lang;
+            this.chaptersKnown = chaptersKnown;
+            return this;
         }
     }
 
@@ -25,5 +40,10 @@ public class LibraryState {
         public int progress;
         public Integer score;
         public String updatedAt;
+        public String sourceCode;
+        public String seriesId;
+        public String seriesTitle;
+        public String sourceLang;
+        public Double chaptersKnown;
     }
 }

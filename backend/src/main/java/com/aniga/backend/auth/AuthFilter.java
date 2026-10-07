@@ -97,7 +97,8 @@ public class AuthFilter extends OncePerRequestFilter {
     }
 
     static boolean requiresAuth(String method, String path) {
-        if (path.startsWith("/api/me")
+        // /api/me must not swallow /api/media — "me" is a prefix of "media".
+        if (path.equals("/api/me") || path.startsWith("/api/me/")
                 || path.startsWith("/api/people")
                 || path.startsWith("/api/chat")
                 || path.startsWith("/api/reports")) {

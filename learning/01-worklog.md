@@ -171,3 +171,15 @@ Unlicensed index/mirror scrapers were not added. Extra chapters come from other 
 | Windowed list blank until scrolled | No repaint when content above loaded | ResizeObserver |
 | Petals piled above the viewport after scrolling | No vertical wrap | Wrap by H + 120 |
 | Find across sources took 18 s | About 120 rate-limited per-language calls; no deadline | Known-language filter, top-4 expansion, parallel counts, deadlines |
+
+## Session 7 — the box, the lock, and an APK (2026-10-07)
+
+**Request:** put the backend on EC2, keep Firebase as the password check only, add friends, chat, a reading type, and matches, then ship an APK and write the walkthrough.
+
+| Step | What was done | Result |
+|---|---|---|
+| 1 | Postgres and the API on EC2, Caddy on 80/443, database port closed | Health over HTTPS; secrets only in the server `.env` |
+| 2 | Session JWT after Firebase sign-in; `AuthFilter` on private routes | 401 without a token, 403 when the path user is not the token user |
+| 3 | Friend requests, global and group rooms, shared shelves, reading type, taste matches | Circle tab showed The Explorer, Mina, and a shared Attack on Titan |
+| 4 | APK built against the EC2 URL, served at `/download/aniga.apk` | Phone browsers fetch it over HTTP; the app still calls the API over HTTPS |
+| 5 | [17-the-live-stack.md](17-the-live-stack.md) | The picture, the steps, and the Spring Boot path |

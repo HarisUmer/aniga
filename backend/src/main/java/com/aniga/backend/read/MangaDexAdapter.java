@@ -40,7 +40,9 @@ public class MangaDexAdapter implements SourceAdapter {
     /** Typical collection max is 100; some feeds accept 500, but paging by 100 never skips a window. */
     private static final int FEED_BATCH = 100;
     private static final int MAX_CHAPTERS = 4000;
-    static final List<String> COUNT_LANGS = List.of("en", "pt-br", "es-la", "es", "fr", "id", "ru", "de", "it");
+    static final List<String> COUNT_LANGS = List.of("en", "ko", "zh", "pt-br", "es-la", "es", "fr", "id", "ru", "de", "it");
+    /** Mature manhwa is often filed as erotica. Pornographic stays out. */
+    private static final String[] RATINGS = {"safe", "suggestive", "erotica"};
     private static final ParameterizedTypeReference<Map<String, Object>> JSON = new ParameterizedTypeReference<>() {
     };
 
@@ -160,7 +162,7 @@ public class MangaDexAdapter implements SourceAdapter {
                     .queryParam("limit", 100)
                     .queryParam("offset", off)
                     .queryParam("includeExternalUrl", 0)
-                    .queryParam("contentRating[]", "safe", "suggestive")
+                    .queryParam("contentRating[]", RATINGS)
                     .build()));
         }
         for (Map<String, Object> body : parallel(calls)) {
@@ -181,7 +183,7 @@ public class MangaDexAdapter implements SourceAdapter {
                 .queryParam("ids[]", idList.toArray())
                 .queryParam("limit", 100)
                 .queryParam("includes[]", "cover_art", "author")
-                .queryParam("contentRating[]", "safe", "suggestive")
+                .queryParam("contentRating[]", RATINGS)
                 .queryParam("order[followedCount]", "desc")
                 .build());
         List<Series> out = new ArrayList<>();
@@ -206,13 +208,41 @@ public class MangaDexAdapter implements SourceAdapter {
         });
     }
 
+    /**
+     * Title search locked to the original language (ko for manhwa, zh for manhua, ja for manga),
+     * without requiring a translation. Catalog titles often exist only under that language first.
+     */
+    @SuppressWarnings("unchecked")
+    public List<Series> searchOriginal(String query, String originalLang) {
+        if (query == null || query.isBlank() || originalLang == null || originalLang.isBlank()) {
+            return List.of();
+        }
+        String key = "orig:" + originalLang + ":" + query.toLowerCase(java.util.Locale.ROOT);
+        return (List<Series>) cache.get(key, () -> {
+            Map<String, Object> body = get(b -> b.path("/manga")
+                    .queryParam("limit", PAGE_SIZE)
+                    .queryParam("title", "{q}")
+                    .queryParam("originalLanguage[]", originalLang)
+                    .queryParam("hasAvailableChapters", "true")
+                    .queryParam("includes[]", "cover_art", "author")
+                    .queryParam("contentRating[]", RATINGS)
+                    .queryParam("order[relevance]", "desc")
+                    .build(query));
+            List<Series> out = new ArrayList<>();
+            for (Object item : Json.list(body.get("data"))) {
+                out.add(toSeries(Json.map(item)));
+            }
+            return out;
+        });
+    }
+
     private List<Series> browse(String query, String lang, int page, boolean requireLang) {
         Map<String, Object> body = get(b -> {
                     b.path("/manga")
                             .queryParam("limit", PAGE_SIZE)
                             .queryParam("offset", page * PAGE_SIZE)
                             .queryParam("includes[]", "cover_art", "author")
-                            .queryParam("contentRating[]", "safe", "suggestive")
+                            .queryParam("contentRating[]", RATINGS)
                             .queryParam("hasAvailableChapters", "true");
                     if (requireLang) {
                         b.queryParam("availableTranslatedLanguage[]", lang);
@@ -305,7 +335,7 @@ public class MangaDexAdapter implements SourceAdapter {
                 .queryParam("limit", FEED_BATCH)
                 .queryParam("offset", off)
                 .queryParam("includes[]", "scanlation_group")
-                .queryParam("contentRating[]", "safe", "suggestive")
+                .queryParam("contentRating[]", RATINGS)
                 .build(seriesId));
         // Walk by the number actually returned (API may cap below FEED_BATCH) so we never skip 101–499.
         List<Map<String, Object>> bodies = new ArrayList<>();

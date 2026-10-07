@@ -21,7 +21,7 @@ public final class Covers {
             return;
         }
         Glide.with(view)
-                .load(url)
+                .load(RemoteImages.model(url))
                 .placeholder(new ColorDrawable(Ui.color(view.getContext(), R.color.ink_700)))
                 .error(fallback)
                 .transition(DrawableTransitionOptions.withCrossFade(220))
@@ -36,6 +36,6 @@ public final class Covers {
             view.setImageDrawable(fallback);
             return;
         }
-        Glide.with(view).load(url).dontAnimate().dontTransform().error(fallback).into(view);
+        Glide.with(view).load(RemoteImages.model(url)).dontAnimate().dontTransform().error(fallback).into(view);
     }
 }

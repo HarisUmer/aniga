@@ -9,10 +9,8 @@ import java.util.NoSuchElementException;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.jsoup.nodes.Element;
-import org.springframework.beans.factory.annotation.Value;
 import org.springframework.stereotype.Component;
 
 /**
@@ -31,23 +29,14 @@ public class WebtoonCanvasAdapter implements SourceAdapter {
     private static final int POPULAR_PAGE = 24;
 
     private final TtlCache<Object> cache = new TtlCache<>(Duration.ofMinutes(30), 400);
-    private final RateLimiter limiter = new RateLimiter(1.6, 3);
+    private final HtmlFetch html;
 
-    public WebtoonCanvasAdapter(@Value("${aniga.mangadex.user-agent}") String ignored) {
+    public WebtoonCanvasAdapter(HtmlFetch html) {
+        this.html = html;
     }
 
     private Document page(String url) {
-        limiter.acquire();
-        try {
-            return Jsoup.connect(url)
-                    .userAgent("Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 "
-                            + "(KHTML, like Gecko) Chrome/122.0.0.0 Safari/537.36")
-                    .header("Accept", "text/html,application/xhtml+xml")
-                    .timeout(10_000)
-                    .get();
-        } catch (java.io.IOException e) {
-            throw new IllegalStateException("WEBTOON Canvas unavailable: " + e.getMessage(), e);
-        }
+        return html.get(url, HtmlFetch.BROWSER, 10_000);
     }
 
     @Override

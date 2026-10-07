@@ -64,6 +64,22 @@ public class ShelfPanel extends LinearLayout {
         int pad = (int) Ui.dp(context, 2);
         setPadding(0, pad, 0, pad);
 
+        LinearLayout ratingHead = new LinearLayout(context);
+        ratingHead.setOrientation(HORIZONTAL);
+        ratingHead.setGravity(Gravity.BOTTOM);
+        TextView rk = kicker(context, R.string.shelf_score);
+        ratingHead.addView(rk, new LayoutParams(0, -2, 1f));
+        ratingLabel = new TextView(context);
+        ratingLabel.setTextAppearance(R.style.TextAppearance_Aniga_Meta);
+        ratingLabel.setOnClickListener(v -> {
+            if (state.score > 0) saveScore(0);
+        });
+        ratingHead.addView(ratingLabel);
+        addView(ratingHead, new LayoutParams(-1, -2));
+        rating = new HankoRatingView(context);
+        addView(rating, new LayoutParams(-1, -2));
+        rating.setOnRate(this::saveScore);
+
         addView(kicker(context, R.string.shelf_status));
         chips = new ChipGroup(context);
         chips.setSingleSelection(true);
@@ -98,23 +114,6 @@ public class ShelfPanel extends LinearLayout {
             return true;
         });
 
-        LinearLayout ratingHead = new LinearLayout(context);
-        ratingHead.setOrientation(HORIZONTAL);
-        ratingHead.setGravity(Gravity.BOTTOM);
-        TextView rk = kicker(context, R.string.shelf_score);
-        ratingHead.addView(rk, new LayoutParams(0, -2, 1f));
-        ratingLabel = new TextView(context);
-        ratingLabel.setTextAppearance(R.style.TextAppearance_Aniga_Meta);
-        ratingLabel.setOnClickListener(v -> {
-            if (state.score > 0) saveScore(0);
-        });
-        ratingHead.addView(ratingLabel);
-        LayoutParams headLp = new LayoutParams(-1, -2);
-        headLp.topMargin = (int) Ui.dp(context, 14);
-        addView(ratingHead, headLp);
-        rating = new HankoRatingView(context);
-        addView(rating, new LayoutParams(-1, -2));
-        rating.setOnRate(this::saveScore);
     }
 
     private static TextView kicker(Context c, int text) {
@@ -151,8 +150,8 @@ public class ShelfPanel extends LinearLayout {
         progressRow.setVisibility(View.VISIBLE);
         int typeColor = Ui.typeColor(getContext(), m.mediaType);
         plane.setColors(Ui.color(getContext(), R.color.ink_600), typeColor, Ui.color(getContext(), R.color.paper_100));
-        render(state);
-        Api.load(owner, Api.get().libraryEntry(Session.userId(getContext()), m.id), this::render, e -> {
+        render(state, false);
+        Api.load(owner, Api.get().libraryEntry(Session.userId(getContext()), m.id), s -> render(s, false), e -> {
         });
     }
 
@@ -183,12 +182,15 @@ public class ShelfPanel extends LinearLayout {
         }
     }
 
-    private void render(LibraryState s) {
+    private void render(LibraryState s, boolean notify) {
+        if (s == null) {
+            return;
+        }
         state = s;
         binding = true;
         for (int i = 0; i < chips.getChildCount(); i++) {
             Chip c = (Chip) chips.getChildAt(i);
-            c.setChecked(c.getTag().equals(s.status));
+            c.setChecked(s.status != null && c.getTag().equals(s.status));
         }
         binding = false;
         renderProgress(s.progress);
@@ -196,7 +198,11 @@ public class ShelfPanel extends LinearLayout {
         ratingLabel.setText(s.score > 0 ? getContext().getString(R.string.shelf_score_clear, s.score)
                 : getContext().getString(R.string.shelf_score_none));
         ratingLabel.setTextColor(Ui.color(getContext(), s.score > 0 ? R.color.hanko : R.color.paper_500));
-        if (onChange != null) onChange.accept(s);
+        // The opening fetch must not poke the list. A notify while the sheet is being created,
+        // or while the list behind it is still settling, is what force-closes the second screen.
+        if (notify && onChange != null) {
+            onChange.accept(s);
+        }
     }
 
     private void renderProgress(int progress) {
@@ -230,14 +236,16 @@ public class ShelfPanel extends LinearLayout {
     }
 
     private void saveScore(int score) {
-        save(new LibraryState.Update(null, null, score));
+        // A bare score used to stay off the shelf, so Library never listed the title.
+        String status = score > 0 && (state.status == null || "NONE".equals(state.status)) ? "PLANNING" : null;
+        save(new LibraryState.Update(status, null, score));
     }
 
     private void save(LibraryState.Update update) {
         if (owner == null || media == null) return;
         Api.load(owner, Api.get().updateLibrary(Session.userId(getContext()), media.id, update), s -> {
                     Progress.put(s);
-                    render(s);
+                    render(s, true);
                 },
                 e -> Toast.makeText(getContext(), R.string.shelf_save_failed, Toast.LENGTH_SHORT).show());
     }

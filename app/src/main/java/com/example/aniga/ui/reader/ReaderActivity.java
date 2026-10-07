@@ -170,6 +170,13 @@ public class ReaderActivity extends AppCompatActivity {
         out.putInt(EXTRA_INDEX, index);
     }
 
+    @Override
+    protected void onPause() {
+        super.onPause();
+        // Leaving the reader (back, home, app switch) banks the chapter you were on, not only the end card.
+        chapterFinished();
+    }
+
     private void go(int next) {
         if (next < 0 || next >= ids.length) return;
         index = next;

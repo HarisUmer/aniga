@@ -38,7 +38,15 @@ public class SplashActivity extends AppCompatActivity {
     }
 
     private void continueAfterSplash() {
-        go(com.example.aniga.data.Session.isSignedIn(this) ? MainActivity.class : SignInActivity.class);
+        Class<?> next;
+        if (!com.example.aniga.data.Session.isSignedIn(this)) {
+            next = SignInActivity.class;
+        } else if (!com.example.aniga.data.Session.prefsDone(this)) {
+            next = TasteActivity.class;
+        } else {
+            next = MainActivity.class;
+        }
+        go(next);
     }
 
     private void go(Class<?> next) {

@@ -95,6 +95,12 @@
                 android:text="@string/people_add" />
         </LinearLayout>
 
+        <LinearLayout
+            android:id="@+id/search_hits"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical" />
+
         <com.google.android.material.button.MaterialButton
             android:id="@+id/global_button"
             style="@style/Widget.Material3.Button.OutlinedButton"
@@ -118,7 +124,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="4dp"
-            android:animateLayoutChanges="true"
             android:orientation="vertical" />
 
         <TextView
@@ -133,7 +138,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:animateLayoutChanges="true"
             android:orientation="vertical" />
 
         <TextView
@@ -148,7 +152,6 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:layout_marginTop="6dp"
-            android:animateLayoutChanges="true"
             android:orientation="vertical" />
 
         <com.example.aniga.ui.widget.StatusView

@@ -14,7 +14,8 @@ import org.springframework.stereotype.Component;
 @Component
 public class FirebaseSchema {
 
-    private static final String[] SCRIPTS = {"db/010_firebase_auth.sql", "db/011_people.sql"};
+    private static final String[] SCRIPTS = {
+            "db/010_firebase_auth.sql", "db/011_people.sql", "db/012_local_auth.sql"};
 
     public FirebaseSchema(DataSource dataSource) {
         try (Connection connection = dataSource.getConnection();

@@ -73,6 +73,12 @@ public final class Progress {
         bump();
     }
 
+    public static void put(long mediaId, String status, int progress) {
+        if (status == null || "NONE".equals(status)) byMedia.remove(mediaId);
+        else byMedia.put(mediaId, new State(status, progress));
+        bump();
+    }
+
     private static void bump() {
         Integer v = version.getValue();
         version.setValue(v == null ? 1 : v + 1);

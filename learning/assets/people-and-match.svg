@@ -1,0 +1,38 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 440" role="img" aria-labelledby="title desc">
+  <title id="title">Personality, friends, and a match</title>
+  <desc id="desc">Ratings of 6 and up are tallied into four reading types. A match needs titles both people scored 7 or higher.</desc>
+  <rect width="960" height="440" fill="#F6F1E7"/>
+  <text x="40" y="40" fill="#221C17" font-family="Georgia, Palatino, serif" font-size="22">Reading type, then a match</text>
+  <text x="40" y="64" fill="#85796A" font-family="Segoe UI, sans-serif" font-size="13">No new model. The shelves and ratings already in Postgres are enough.</text>
+
+  <rect x="36" y="88" width="430" height="250" rx="3" fill="#F1E9DA" stroke="#221C17"/>
+  <text x="56" y="118" fill="#85796A" font-family="Segoe UI, sans-serif" font-size="11">RATINGS OF 6 AND UP, BY GENRE</text>
+  <text x="56" y="148" fill="#221C17" font-family="Georgia, Palatino, serif" font-size="20">The Explorer</text>
+  <text x="56" y="170" fill="#85796A" font-family="Segoe UI, sans-serif" font-size="12">Action, Adventure, Fantasy, Sci-Fi, Mecha</text>
+
+  <text x="56" y="206" fill="#221C17" font-family="Segoe UI, sans-serif" font-size="12">Explorer</text>
+  <rect x="140" y="194" width="220" height="14" fill="#E4D9C5"/>
+  <rect x="140" y="194" width="160" height="14" fill="#E5532D"/>
+  <text x="56" y="232" fill="#221C17" font-family="Segoe UI, sans-serif" font-size="12">Strategist</text>
+  <rect x="140" y="220" width="220" height="14" fill="#E4D9C5"/>
+  <rect x="140" y="220" width="90" height="14" fill="#E5532D"/>
+  <text x="56" y="258" fill="#221C17" font-family="Segoe UI, sans-serif" font-size="12">Romantic</text>
+  <rect x="140" y="246" width="220" height="14" fill="#E4D9C5"/>
+  <rect x="140" y="246" width="70" height="14" fill="#E5532D"/>
+  <text x="56" y="284" fill="#221C17" font-family="Segoe UI, sans-serif" font-size="12">Jester</text>
+  <rect x="140" y="272" width="220" height="14" fill="#E4D9C5"/>
+  <text x="56" y="316" fill="#85796A" font-family="Segoe UI, sans-serif" font-size="12">No ratings yet ’ The Newcomer</text>
+
+  <rect x="490" y="88" width="430" height="250" rx="3" fill="#221C17"/>
+  <text x="514" y="118" fill="#B9AD9A" font-family="Segoe UI, sans-serif" font-size="11">A MATCH</text>
+  <text x="514" y="150" fill="#F1E9DA" font-family="Georgia, Palatino, serif" font-size="18">You both rated Attack on Titan highly.</text>
+  <text x="514" y="182" fill="#B9AD9A" font-family="Segoe UI, sans-serif" font-size="13">Shared titles both scored 7 or higher.</text>
+  <text x="514" y="206" fill="#B9AD9A" font-family="Segoe UI, sans-serif" font-size="13">Plus half a point for each shared genre.</text>
+  <text x="514" y="242" fill="#F1E9DA" font-family="Segoe UI, sans-serif" font-size="13">Their picks: titles they scored 8+</text>
+  <text x="514" y="264" fill="#F1E9DA" font-family="Segoe UI, sans-serif" font-size="13">that you have not rated.</text>
+  <text x="514" y="304" fill="#E5532D" font-family="Segoe UI, sans-serif" font-size="13">A friend's shelf opens only after they accept.</text>
+
+  <rect x="36" y="356" width="884" height="60" rx="3" fill="#F1E9DA" stroke="#221C17"/>
+  <text x="56" y="382" fill="#221C17" font-family="Georgia, Palatino, serif" font-size="15">Chat</text>
+  <text x="56" y="402" fill="#85796A" font-family="Segoe UI, sans-serif" font-size="13">Accepting a request opens a direct room. One global room exists for everyone. A group room is a title plus usernames.</text>
+</svg>

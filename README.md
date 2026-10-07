@@ -75,6 +75,37 @@
 
 <br>
 
+## What you can do with it
+
+<table>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="learning/assets/android-detail-chapters.png" alt="Chapter list with the source the app will actually read" width="100%"><br><br>
+      <strong>Open a real chapter</strong><br>
+      Home, For You, and search land on Asura, MangaGeko, or MangaTown. Read from the start, jump to the latest, or type a chapter number. Leaving the reader saves your place.
+    </td>
+    <td width="50%" valign="top">
+      <img src="learning/assets/android-foryou-list.png" alt="For You continue rail and ranked recommendations" width="100%"><br><br>
+      <strong>Pick up where you stopped</strong><br>
+      For You leads with the titles you are in the middle of. Library watches those sources and tells you when a new chapter is out.
+    </td>
+  </tr>
+  <tr>
+    <td width="50%" valign="top">
+      <img src="learning/assets/android-discover-idle.png" alt="Discover, ready for a title, a story, or a picture" width="100%"><br><br>
+      <strong>Find it from a frame</strong><br>
+      A screenshot of an anime scene comes back as the episode, even when that title is not already on your shelf. A cover search is for covers we have indexed.
+    </td>
+    <td width="50%" valign="top">
+      <img src="learning/assets/web-detail.png" alt="The same title open in the browser" width="100%"><br><br>
+      <strong>Hand it to a friend</strong><br>
+      Share one title into a friend's chat, or send a link to your taste report: every score, grouped by anime, manga, manhwa, and manhua, with the genres that pull you in.
+    </td>
+  </tr>
+</table>
+
+<br>
+
 ## Open it
 
 The console runs on your machine.

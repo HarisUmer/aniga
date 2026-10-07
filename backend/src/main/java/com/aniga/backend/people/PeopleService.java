@@ -77,13 +77,51 @@ public class PeopleService {
                 .list();
     }
 
+    public List<RequestView> outgoing(long me) {
+        return jdbc.sql("""
+                        SELECT fr.id, fr.addressee_id, u.username, u.display_name, fr.created_at::text
+                        FROM friend_request fr JOIN app_user u ON u.id = fr.addressee_id
+                        WHERE fr.requester_id = :me AND fr.status = 'PENDING'
+                        ORDER BY fr.created_at DESC""")
+                .param("me", me)
+                .query((rs, i) -> new RequestView(rs.getLong(1), rs.getLong(2), rs.getString(3),
+                        rs.getString(4), rs.getString(5)))
+                .list();
+    }
+
+    /** Username, display name, or the email they signed up with. Partial match, eight rows. */
+    public List<Person> search(long me, String raw) {
+        if (raw == null || raw.isBlank()) {
+            return List.of();
+        }
+        String q = raw.trim().toLowerCase(Locale.ROOT).replace("%", "").replace("_", "");
+        String like = "%" + q + "%";
+        return jdbc.sql("""
+                        SELECT id, username, display_name FROM app_user
+                        WHERE id <> :me
+                          AND (username ILIKE :q
+                            OR lower(coalesce(display_name, '')) ILIKE :q
+                            OR lower(coalesce(email, '')) ILIKE :q)
+                        ORDER BY username = :exact DESC, username
+                        LIMIT 8""")
+                .param("me", me).param("q", like).param("exact", q)
+                .query((rs, i) -> new Person(rs.getLong(1), rs.getString(2), rs.getString(3)))
+                .list();
+    }
+
     @Transactional
     public Outcome request(long me, String username) {
         if (username == null || username.isBlank()) {
             throw new IllegalArgumentException("username is required");
         }
         String name = username.trim().toLowerCase(Locale.ROOT);
-        Long other = jdbc.sql("SELECT id FROM app_user WHERE username = :u")
+        Long other = jdbc.sql("""
+                        SELECT id FROM app_user
+                        WHERE username = :u
+                           OR lower(coalesce(email, '')) = :u
+                           OR lower(coalesce(display_name, '')) = :u
+                        ORDER BY username = :u DESC
+                        LIMIT 1""")
                 .param("u", name).query(Long.class).optional().orElse(null);
         if (other == null) {
             throw new NoSuchElementException("no user named " + name);
@@ -188,10 +226,8 @@ public class PeopleService {
                         ORDER BY shared DESC, u.username
                         LIMIT 12""")
                 .param("me", me)
-                .query((rs, i) -> {
-                    String[] titles = (String[]) rs.getArray(5).getArray();
-                    return new Object[]{rs.getLong(1), rs.getString(2), rs.getString(3), rs.getInt(4), titles};
-                })
+                .query((rs, i) -> new Object[]{rs.getLong(1), rs.getString(2), rs.getString(3),
+                        rs.getInt(4), textArray(rs.getArray(5))})
                 .list();
         List<Match> out = new ArrayList<>();
         for (Object[] r : rows) {
@@ -199,7 +235,8 @@ public class PeopleService {
             String username = (String) r[1];
             String display = (String) r[2];
             int shared = (Integer) r[3];
-            List<String> titles = List.of((String[]) r[4]);
+            @SuppressWarnings("unchecked")
+            List<String> titles = (List<String>) r[4];
             List<String> topShared = titles.stream().limit(3).toList();
             Set<String> theirGenres = likedGenres(otherId);
             long overlap = theirGenres.stream().filter(myGenres::contains).count();
@@ -211,6 +248,30 @@ public class PeopleService {
         }
         out.sort((a, b) -> Double.compare(b.affinity(), a.affinity()));
         return out;
+    }
+
+    private static List<String> textArray(java.sql.Array array) {
+        try {
+            if (array == null || array.getArray() == null) {
+                return List.of();
+            }
+            Object raw = array.getArray();
+            if (raw instanceof String[] strings) {
+                return List.of(strings);
+            }
+            if (raw instanceof Object[] objects) {
+                List<String> out = new ArrayList<>();
+                for (Object item : objects) {
+                    if (item != null) {
+                        out.add(item.toString());
+                    }
+                }
+                return out;
+            }
+        } catch (java.sql.SQLException ignored) {
+            return List.of();
+        }
+        return List.of();
     }
 
     private List<String> theirPicks(long me, long other) {

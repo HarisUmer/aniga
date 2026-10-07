@@ -1,5 +1,6 @@
 <?xml version="1.0" encoding="utf-8"?>
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:id="@+id/main"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
@@ -27,6 +28,22 @@
             android:layout_width="match_parent"
             android:layout_height="0dp"
             android:background="#E615120F" />
+
+        <com.google.android.material.button.MaterialButton
+            android:id="@+id/global_chat"
+            android:layout_width="56dp"
+            android:layout_height="56dp"
+            android:layout_gravity="bottom|start"
+            android:layout_margin="16dp"
+            android:contentDescription="@string/people_global"
+            android:insetTop="0dp"
+            android:insetBottom="0dp"
+            android:padding="0dp"
+            android:text="@string/chat_mark"
+            android:textColor="@color/paper_100"
+            android:textSize="18sp"
+            app:backgroundTint="@color/hanko"
+            app:cornerRadius="28dp" />
     </FrameLayout>
 
     <com.example.aniga.ui.widget.InkNavView

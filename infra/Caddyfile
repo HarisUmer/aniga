@@ -2,9 +2,31 @@
 	# Self-signed internal CA. The Android app ships this CA and trusts it only for this host,
 	# so the phone talks to our API over TLS that we pin. No external certificate authority is involved.
 	local_certs
+	# Port 80 is not a blanket redirect. The APK is served there because phone browsers
+	# do not trust this private CA, and a warning page blocks the download.
+	auto_https disable_redirects
 }
 
-{$ANIGA_SITE_ADDRESS:localhost} {
+# Plain HTTP is only the installer. Everything else is sent to HTTPS.
+http://{$ANIGA_SITE_ADDRESS:ec2-32-236-45-71.ap-southeast-2.compute.amazonaws.com}, http://localhost {
+	handle_path /download/* {
+		root * /srv/download
+		header Content-Disposition "attachment; filename=aniga.apk"
+		file_server
+	}
+	handle {
+		redir https://{host}{uri}
+	}
+}
+
+https://{$ANIGA_SITE_ADDRESS:ec2-32-236-45-71.ap-southeast-2.compute.amazonaws.com}, https://localhost {
 	encode zstd gzip
-	reverse_proxy backend:8080
+	handle_path /download/* {
+		root * /srv/download
+		header Content-Disposition "attachment; filename=aniga.apk"
+		file_server
+	}
+	handle {
+		reverse_proxy backend:8080
+	}
 }

@@ -1,9 +1,6 @@
 package com.example.aniga.ui.foryou;
 
-import android.content.res.ColorStateList;
 import android.os.Bundle;
-import android.text.SpannableStringBuilder;
-import android.text.style.ForegroundColorSpan;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
@@ -25,7 +22,6 @@ import com.example.aniga.R;
 import com.example.aniga.data.Api;
 import com.example.aniga.data.Progress;
 import com.example.aniga.data.Session;
-import com.example.aniga.data.model.Taste;
 import com.example.aniga.data.model.TasteV2;
 import com.example.aniga.data.model.User;
 import com.example.aniga.ui.Ui;
@@ -51,13 +47,13 @@ public class ForYouFragment extends Fragment {
 
     private ChipGroup users;
     private LinearLayout genreBars;
-    private LinearLayout changes;
-    private ChipGroup liked;
-    private ChipGroup disliked;
     private TextView tasteMeta;
     private StatusView status;
     private RecyclerView list;
     private RecommendationAdapter adapter;
+    private View continueLabel;
+    private RecyclerView continueList;
+    private com.example.aniga.ui.CoverAdapter continueAdapter;
     private final Map<String, BarRow> rows = new HashMap<>();
     private long userId;
 
@@ -95,15 +91,18 @@ public class ForYouFragment extends Fragment {
         });
         users = view.findViewById(R.id.users);
         genreBars = view.findViewById(R.id.genre_bars);
-        changes = view.findViewById(R.id.changes);
-        liked = view.findViewById(R.id.liked);
-        disliked = view.findViewById(R.id.disliked);
         tasteMeta = view.findViewById(R.id.taste_meta);
         status = view.findViewById(R.id.status);
         list = view.findViewById(R.id.list);
         adapter = new RecommendationAdapter(getViewLifecycleOwner(), this::refreshModel);
         list.setLayoutManager(new LinearLayoutManager(requireContext()));
         list.setAdapter(adapter);
+        continueLabel = view.findViewById(R.id.continue_label);
+        continueList = view.findViewById(R.id.continue_list);
+        continueAdapter = new com.example.aniga.ui.CoverAdapter(false);
+        continueAdapter.setContinueMode(true);
+        continueList.setLayoutManager(new LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false));
+        continueList.setAdapter(continueAdapter);
         view.findViewById(R.id.reset).setOnClickListener(v ->
                 Api.load(getViewLifecycleOwner(), Api.get().resetOnline(userId), r -> {
                     Toast.makeText(requireContext(), R.string.foryou_reset_done, Toast.LENGTH_SHORT).show();
@@ -141,14 +140,31 @@ public class ForYouFragment extends Fragment {
         rows.clear();
         genreBars.removeAllViews();
         status.loading(R.string.loading_list);
-        Api.load(getViewLifecycleOwner(), Api.get().taste(id), this::showTerms, e -> {
-        });
+        loadContinue(id);
         refreshModel();
         Api.load(getViewLifecycleOwner(), Api.get().recommendations(id, 15, null, true), recs -> {
             status.hide();
             adapter.submit(recs);
             list.scheduleLayoutAnimation();
         }, e -> status.error(getString(R.string.error_backend), () -> loadFor(id)));
+    }
+
+    /** Horizontal rail of the comics you're mid-way through, newest activity first; tap to jump to the next chapter. */
+    private void loadContinue(long id) {
+        Api.load(getViewLifecycleOwner(), Api.get().library(id, "CURRENT", null), entries -> {
+            List<com.example.aniga.ui.CoverItem> items = new ArrayList<>();
+            for (com.example.aniga.data.model.LibraryState.Entry e : entries) {
+                if (e.media != null && !e.media.isAnime() && e.sourceCode != null) {
+                    com.example.aniga.data.Progress.put(e.media.id, e.status, e.progress);
+                    items.add(com.example.aniga.ui.CoverItem.of(e.media));
+                }
+            }
+            boolean any = !items.isEmpty();
+            continueLabel.setVisibility(any ? View.VISIBLE : View.GONE);
+            continueList.setVisibility(any ? View.VISIBLE : View.GONE);
+            continueAdapter.submit(items);
+        }, e -> {
+        });
     }
 
     /** Re-reads the model after any reward; bars that already exist glide to their new value. */
@@ -184,9 +200,11 @@ public class ForYouFragment extends Fragment {
                 rows.put(f.feature, row);
             }
             bindRow(row, f, scale, fresh ? 70L * i : 0L, fresh);
+            if (row.root.getParent() instanceof android.view.ViewGroup) {
+                ((android.view.ViewGroup) row.root.getParent()).removeView(row.root);
+            }
             genreBars.addView(row.root);
         }
-        showChanges(t.changes);
     }
 
     private BarRow barRow(TasteV2.Feature f) {
@@ -251,71 +269,4 @@ public class ForYouFragment extends Fragment {
         });
     }
 
-    /** "Rated Berserk 3/10 — expected 82%, got 20%" then the features that moved, green up / red down. */
-    private void showChanges(@Nullable List<TasteV2.Change> recent) {
-        changes.removeAllViews();
-        if (recent == null) return;
-        int like = Ui.color(requireContext(), R.color.taste_like);
-        int dislike = Ui.color(requireContext(), R.color.taste_dislike);
-        int shown = 0;
-        for (TasteV2.Change c : recent) {
-            if (shown++ >= 5) break;
-            TextView line = new TextView(requireContext());
-            line.setTextAppearance(R.style.TextAppearance_Aniga_Meta);
-            SpannableStringBuilder s = new SpannableStringBuilder();
-            s.append(c.title != null ? c.title : "—").append(" · ").append(c.cause != null ? c.cause : "");
-            if (c.expected != null) {
-                s.append(String.format(Locale.ROOT, " · expected %d%%, got %d%%",
-                        Math.round(c.expected * 100), Math.round(c.reward * 100)));
-            }
-            if (c.deltas != null && !c.deltas.isEmpty()) {
-                List<Map.Entry<String, Double>> ds = new ArrayList<>(c.deltas.entrySet());
-                ds.sort((a, b) -> Double.compare(Math.abs(b.getValue()), Math.abs(a.getValue())));
-                s.append("\n");
-                for (int i = 0; i < Math.min(3, ds.size()); i++) {
-                    Map.Entry<String, Double> d = ds.get(i);
-                    int start = s.length();
-                    s.append(label(d.getKey())).append(String.format(Locale.ROOT, " %+.2f", d.getValue()));
-                    s.setSpan(new ForegroundColorSpan(d.getValue() >= 0 ? like : dislike), start, s.length(), 0);
-                    if (i < Math.min(3, ds.size()) - 1) s.append("   ");
-                }
-            }
-            line.setText(s);
-            int pad = (int) Ui.dp(requireContext(), 4);
-            line.setPadding(0, pad, 0, pad);
-            changes.addView(line);
-        }
-    }
-
-    private static String label(String feature) {
-        int colon = feature.indexOf(':');
-        String rest = colon >= 0 ? feature.substring(colon + 1) : feature;
-        return feature.startsWith("t:") ? "#" + rest : rest;
-    }
-
-    private void showTerms(Taste taste) {
-        fillTerms(liked, taste.likedTerms, R.color.taste_like);
-        fillTerms(disliked, taste.dislikedTerms, R.color.taste_dislike);
-    }
-
-    private void fillTerms(ChipGroup group, List<Map<String, Double>> terms, int colorRes) {
-        group.removeAllViews();
-        if (terms == null) return;
-        int color = Ui.color(requireContext(), colorRes);
-        int count = 0;
-        for (Map<String, Double> entry : terms) {
-            for (String term : entry.keySet()) {
-                if (count++ >= 8) return;
-                Chip chip = new Chip(requireContext());
-                chip.setText(term);
-                chip.setCheckable(false);
-                chip.setClickable(false);
-                chip.setChipBackgroundColor(ColorStateList.valueOf(Ui.withAlpha(color, 0.12f)));
-                chip.setChipStrokeColor(ColorStateList.valueOf(Ui.withAlpha(color, 0.6f)));
-                chip.setTextColor(color);
-                chip.setEnsureMinTouchTargetSize(false);
-                group.addView(chip);
-            }
-        }
-    }
 }

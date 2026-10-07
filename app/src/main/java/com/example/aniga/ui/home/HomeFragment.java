@@ -119,11 +119,7 @@ public class HomeFragment extends Fragment {
         Api.load(getViewLifecycleOwner(), Api.get().library(user, "CURRENT", null), this::showContinue, e -> {
         });
         String[] names = {"Manhwa", "Manga", "Manhua", "Anime"};
-        String[] subs = {
-                "Korean webtoons — read top to bottom",
-                "Japanese, right to left in print",
-                "Chinese cultivation, wuxia & more",
-                "Metadata only — episodes, studios, stills"};
+        String[] subs = {"", "", "", ""};
         // Each type rail is its own request so they fill in independently and keep their order.
         View[] slots = new View[RAIL_TYPES.length];
         for (int t = 0; t < RAIL_TYPES.length; t++) {
@@ -235,8 +231,12 @@ public class HomeFragment extends Fragment {
         rail.findViewById(R.id.rail_bar).setBackgroundColor(color);
         ((TextView) rail.findViewById(R.id.rail_index)).setText(indexLabel);
         ((TextView) rail.findViewById(R.id.rail_title)).setText(title);
-        ((TextView) rail.findViewById(R.id.rail_sub)).setText(sub);
-        ((TextView) rail.findViewById(R.id.rail_count)).setText(items.size() + " titles");
+        TextView subView = rail.findViewById(R.id.rail_sub);
+        boolean showSub = sub != null && !sub.isEmpty();
+        subView.setVisibility(showSub ? View.VISIBLE : View.GONE);
+        subView.setText(sub);
+        TextView count = rail.findViewById(R.id.rail_count);
+        count.setVisibility(View.GONE);
         RecyclerView list = rail.findViewById(R.id.rail_list);
         list.setLayoutManager(new LinearLayoutManager(requireContext(), RecyclerView.HORIZONTAL, false));
         CoverAdapter adapter = new CoverAdapter(false);

@@ -3,8 +3,10 @@ package com.example.aniga.ui;
 import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.view.inputmethod.InputMethodManager;
 import android.widget.EditText;
 import android.widget.ProgressBar;
+import android.widget.ScrollView;
 import android.widget.TextView;
 
 import androidx.activity.EdgeToEdge;
@@ -33,6 +35,7 @@ public class SignInActivity extends AppCompatActivity {
     private ProgressBar busy;
     private View enter;
     private View create;
+    private ScrollView scroll;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -45,6 +48,7 @@ public class SignInActivity extends AppCompatActivity {
         busy = findViewById(R.id.busy);
         enter = findViewById(R.id.enter);
         create = findViewById(R.id.create);
+        scroll = findViewById(R.id.sign_in_scroll);
         enter.setOnClickListener(v -> sign(false));
         create.setOnClickListener(v -> sign(true));
         findViewById(R.id.sign_out).setOnClickListener(v -> {
@@ -103,15 +107,9 @@ public class SignInActivity extends AppCompatActivity {
     private String explain(Response<AuthResponse> response) {
         try {
             if (response.errorBody() != null) {
-                String raw = response.errorBody().string();
-                int at = raw.indexOf("\"detail\"");
-                if (at >= 0) {
-                    int start = raw.indexOf('"', at + 8) + 1;
-                    start = raw.indexOf('"', start) + 1;
-                    int end = raw.indexOf('"', start);
-                    if (start > 0 && end > start) {
-                        return raw.substring(start, end);
-                    }
+                String detail = detailOf(response.errorBody().string());
+                if (detail != null && !detail.isEmpty()) {
+                    return detail;
                 }
             }
         } catch (Exception ignored) {
@@ -120,9 +118,51 @@ public class SignInActivity extends AppCompatActivity {
         return getString(R.string.sign_in_failed);
     }
 
+    /** Reads the JSON string after "detail", including escaped quotes. */
+    static String detailOf(String raw) {
+        if (raw == null) {
+            return null;
+        }
+        int at = raw.indexOf("\"detail\"");
+        if (at < 0) {
+            return null;
+        }
+        int colon = raw.indexOf(':', at + 8);
+        if (colon < 0) {
+            return null;
+        }
+        int quote = raw.indexOf('"', colon + 1);
+        if (quote < 0) {
+            return null;
+        }
+        StringBuilder out = new StringBuilder();
+        for (int i = quote + 1; i < raw.length(); i++) {
+            char c = raw.charAt(i);
+            if (c == '\\' && i + 1 < raw.length()) {
+                char next = raw.charAt(++i);
+                if (next == 'n') {
+                    out.append('\n');
+                } else {
+                    out.append(next);
+                }
+                continue;
+            }
+            if (c == '"') {
+                return out.toString();
+            }
+            out.append(c);
+        }
+        return null;
+    }
+
     private void show(String text) {
         message.setText(text);
         message.setVisibility(View.VISIBLE);
+        InputMethodManager imm = (InputMethodManager) getSystemService(INPUT_METHOD_SERVICE);
+        if (imm != null && getCurrentFocus() != null) {
+            imm.hideSoftInputFromWindow(getCurrentFocus().getWindowToken(), 0);
+        }
+        message.post(() -> scroll.smoothScrollTo(0, message.getTop()));
     }
 
     private void setBusy(boolean working) {
@@ -132,7 +172,8 @@ public class SignInActivity extends AppCompatActivity {
     }
 
     private void openMain() {
-        startActivity(new Intent(this, MainActivity.class));
+        Class<?> next = Session.prefsDone(this) ? MainActivity.class : TasteActivity.class;
+        startActivity(new Intent(this, next));
         overridePendingTransition(R.anim.fade_in, R.anim.fade_out);
         finish();
     }

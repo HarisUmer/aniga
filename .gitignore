@@ -19,5 +19,6 @@ aniga.local.properties
 /ml/data
 /infra/.env
 /infra/aniga.session.xml
+/infra/download/
 /.playwright-mcp
 __pycache__/

@@ -1,0 +1,36 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 960 460" role="img" aria-labelledby="title desc">
+  <title id="title">Sign-in, step by step</title>
+  <desc id="desc">The app posts email and password to our API. The API checks Firebase, stores the account in Postgres, and returns our own session token.</desc>
+  <rect width="960" height="460" fill="#F6F1E7"/>
+  <text x="40" y="42" fill="#221C17" font-family="Georgia, Palatino, serif" font-size="22">Sign-in, and nothing else</text>
+  <text x="40" y="66" fill="#85796A" font-family="Segoe UI, sans-serif" font-size="13">Firebase proves the password. We keep the account. The phone keeps our token.</text>
+
+  <g font-family="Segoe UI, sans-serif">
+    <circle cx="64" cy="112" r="14" fill="#E5532D"/>
+    <text x="64" y="117" text-anchor="middle" fill="#F6F1E7" font-size="13">1</text>
+    <text x="92" y="117" fill="#221C17" font-size="15">The app posts email and password to POST /api/auth/login (or /signup).</text>
+
+    <circle cx="64" cy="164" r="14" fill="#E5532D"/>
+    <text x="64" y="169" text-anchor="middle" fill="#F6F1E7" font-size="13">2</text>
+    <text x="92" y="169" fill="#221C17" font-size="15">AuthController asks FirebaseAuthClient. Ten tries per minute, per address.</text>
+
+    <circle cx="64" cy="216" r="14" fill="#3D6A9E"/>
+    <text x="64" y="221" text-anchor="middle" fill="#F6F1E7" font-size="13">3</text>
+    <text x="92" y="221" fill="#221C17" font-size="15">Firebase returns a uid and an email. We do not forward Firebase's token.</text>
+
+    <circle cx="64" cy="268" r="14" fill="#2F6F52"/>
+    <text x="64" y="273" text-anchor="middle" fill="#F6F1E7" font-size="13">4</text>
+    <text x="92" y="273" fill="#221C17" font-size="15">AccountService.link finds or creates the row in app_user. Username comes from the email.</text>
+
+    <circle cx="64" cy="320" r="14" fill="#E5532D"/>
+    <text x="64" y="325" text-anchor="middle" fill="#F6F1E7" font-size="13">5</text>
+    <text x="92" y="325" fill="#221C17" font-size="15">SessionService signs an HS256 token: subject = user id, issuer = aniga, life = 30 days.</text>
+
+    <circle cx="64" cy="372" r="14" fill="#221C17"/>
+    <text x="64" y="377" text-anchor="middle" fill="#F6F1E7" font-size="13">6</text>
+    <text x="92" y="377" fill="#221C17" font-size="15">The app saves that token. Later calls send Authorization: Bearer. The user id in the URL must match it.</text>
+  </g>
+
+  <rect x="40" y="404" width="880" height="36" rx="3" fill="#221C17"/>
+  <text x="480" y="427" text-anchor="middle" fill="#F1E9DA" font-family="Segoe UI, sans-serif" font-size="13">The signing key is SHA-256 of ANIGA_SESSION_SECRET. The secret is generated on the server and is not in the APK.</text>
+</svg>

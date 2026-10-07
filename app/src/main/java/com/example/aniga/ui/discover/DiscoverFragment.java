@@ -371,10 +371,18 @@ public class DiscoverFragment extends Fragment {
         StringBuilder text = new StringBuilder();
         if (r.scenes != null) {
             for (SearchResults.Scene s : r.scenes) {
-                if (s.media == null || seen.contains(s.media.id)) continue;
-                seen.add(s.media.id);
                 String ep = s.episode == null ? "" : "EP " + (int) Math.round(s.episode) + " · ";
-                items.add(CoverItem.of(s.media, ep + clock(s.from)));
+                if (s.media != null) {
+                    if (seen.contains(s.media.id)) continue;
+                    seen.add(s.media.id);
+                    items.add(CoverItem.of(s.media, ep + clock(s.from)));
+                } else if (s.title != null) {
+                    // Matched a frame we can identify but don't hold in the catalog — still show it.
+                    items.add(CoverItem.ofScene(s.title, s.previewImage, ep + clock(s.from),
+                            Math.round(s.similarity * 100) + "% scene"));
+                } else {
+                    continue;
+                }
                 if (text.length() == 0) {
                     text.append(getString(R.string.note_scene, s.title != null ? s.title : s.media.title,
                             ep + clock(s.from), Math.round(s.similarity * 100)));

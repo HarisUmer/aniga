@@ -7,6 +7,7 @@ import org.springframework.web.bind.annotation.PathVariable;
 import org.springframework.web.bind.annotation.PostMapping;
 import org.springframework.web.bind.annotation.RequestBody;
 import org.springframework.web.bind.annotation.RequestMapping;
+import org.springframework.web.bind.annotation.RequestParam;
 import org.springframework.web.bind.annotation.RestController;
 
 import com.aniga.backend.auth.AuthFilter;
@@ -34,6 +35,16 @@ public class PeopleController {
     @GetMapping("/requests")
     public List<PeopleService.RequestView> requests(HttpServletRequest request) {
         return people.incoming(AuthFilter.userId(request));
+    }
+
+    @GetMapping("/requests/outgoing")
+    public List<PeopleService.RequestView> outgoing(HttpServletRequest request) {
+        return people.outgoing(AuthFilter.userId(request));
+    }
+
+    @GetMapping("/search")
+    public List<PeopleService.Person> search(HttpServletRequest request, @RequestParam String q) {
+        return people.search(AuthFilter.userId(request), q);
     }
 
     @PostMapping("/requests")

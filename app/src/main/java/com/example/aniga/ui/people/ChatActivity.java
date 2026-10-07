@@ -6,6 +6,7 @@ import android.os.Looper;
 import android.view.View;
 import android.widget.EditText;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.annotation.NonNull;
@@ -72,7 +73,7 @@ public class ChatActivity extends AppCompatActivity {
         empty = findViewById(R.id.chat_empty);
         input = findViewById(R.id.chat_input);
         list = findViewById(R.id.chat_list);
-        adapter = new ChatAdapter(Session.userId(this));
+        adapter = new ChatAdapter(Session.userId(this), this::addSender);
         LinearLayoutManager lm = new LinearLayoutManager(this);
         lm.setStackFromEnd(true);
         list.setLayoutManager(lm);
@@ -123,6 +124,15 @@ public class ChatActivity extends AppCompatActivity {
             public void onFailure(@NonNull Call<List<ChatMessage>> c, @NonNull Throwable t) {
             }
         });
+    }
+
+    /** Tap someone else's line in the global or group room to friend them. No username to type. */
+    private void addSender(String username) {
+        Api.load(this, Api.get().addFriend(Collections.singletonMap("username", username)), outcome -> {
+            boolean accepted = outcome != null && "ACCEPTED".equals(outcome.status);
+            Toast.makeText(this, accepted ? R.string.people_now_friends : R.string.people_added,
+                    Toast.LENGTH_SHORT).show();
+        }, e -> Toast.makeText(this, R.string.people_request_failed, Toast.LENGTH_SHORT).show());
     }
 
     private void send() {

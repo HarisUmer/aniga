@@ -44,4 +44,9 @@ public class CoverItem {
         String meta = (s.year != null ? s.year + " · " : "") + (s.status != null ? s.status : "");
         return new CoverItem(s.title, s.contentType, s.coverUrl, meta, null, s, null);
     }
+
+    /** A trace.moe scene we matched but don't hold in the catalog: shown with its preview frame, not tappable. */
+    public static CoverItem ofScene(String title, String coverUrl, CharSequence meta, String badge) {
+        return new CoverItem(title, "ANIME", coverUrl, meta, null, null, badge);
+    }
 }

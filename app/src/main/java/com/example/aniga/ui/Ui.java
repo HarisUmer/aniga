@@ -97,6 +97,8 @@ public final class Ui {
                 return "Dropped";
             case "PLANNING":
                 return "Planning";
+            case "RATED":
+                return "Rated";
             default:
                 return "Add";
         }

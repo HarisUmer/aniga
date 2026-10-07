@@ -15,7 +15,7 @@ There are two different questions about each row:
 | Is the site alive? | Health check: HTTP GET of the home URL | `source_health`, Sources tab "Health" column |
 | Can Aniga read it? | A legal **adapter** exists for that site | `source_catalog.adapter_code`, "In Aniga" column |
 
-We only read sources that publish content legally (official APIs, open licences, or scanlations hosted by the platform itself). Unlicensed mirror sites are listed and health-checked but **never scraped**; that boundary is the same as in [05](05-sources-and-scraping.md).
+The first adapters read sources that publish content themselves (official APIs, open licences, or creator-uploaded series). Most catalog rows are still health-checked and not scraped. Three HTML readers were added later and do serve pages in-app: AsuraComic, MangaTown, and MangaGeko ([05](05-sources-and-scraping.md)).
 
 ## Adapter pattern (Mihon-shaped)
 
@@ -35,12 +35,17 @@ SourceAdapter
 | `PepperCarrotAdapter` | open webcomic, CC BY 4.0 | the languages the episode index reports | Credit line shown at the chapter end |
 | `XkcdAdapter` | official JSON API, CC BY-NC 2.5 | en | The title text is shown as a caption under each strip |
 | `WebtoonCanvasAdapter` | public HTML (creator-uploaded) | en | Ranking + search scraped; chapters link out to the official viewer |
+| `AsuraComicAdapter` | HTML | en | Series slug; chapter id `slug:chapterSlug`; vertical strip |
+| `MangaTownAdapter` | HTML | en | Series slug; chapter id `slug:chapterSlug`; page-by-page |
+| `MangaGekoAdapter` | HTML | en | Series slug; chapter id `slug:chapterSlug`; vertical strip |
 
 `005_sources_v2.sql` links catalog rows to adapters:
 
 - every MangaDex extension → `mangadex` with its own language;
 - Pepper&Carrot → `peppercarrot`;
 - xkcd (English original only; the es/fr/ru/zh rows are independent fan sites) → `xkcd`.
+
+`013_html_readers.sql` links the English Asura Scans, Mangatown, and MangaGeko rows (`asura`, `mangatown`, `mangageko`). The Asura row's home URL is `https://asurascans.com`, which is the site that adapter reads.
 
 ### Unified endpoints (`ReadController`)
 

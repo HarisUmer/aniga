@@ -24,9 +24,15 @@ public class CoverAdapter extends RecyclerView.Adapter<CoverAdapter.Holder> {
 
     private final List<CoverItem> items = new ArrayList<>();
     private final boolean grid;
+    private boolean continueMode;
 
     public CoverAdapter(boolean grid) {
         this.grid = grid;
+    }
+
+    /** When set, tapping a catalog cover jumps straight to the next unread chapter instead of the detail top. */
+    public void setContinueMode(boolean on) {
+        continueMode = on;
     }
 
     public void submit(List<CoverItem> next) {
@@ -65,8 +71,12 @@ public class CoverAdapter extends RecyclerView.Adapter<CoverAdapter.Holder> {
         bindProgress(h, item);
         h.itemView.setOnClickListener(v -> {
             Activity a = (Activity) v.getContext();
-            if (item.media != null) DetailActivity.open(a, item.media, h.cover);
-            else if (item.series != null) DetailActivity.open(a, item.series, h.cover);
+            if (item.media != null) {
+                if (continueMode) DetailActivity.openContinue(a, item.media, h.cover);
+                else DetailActivity.open(a, item.media, h.cover);
+            } else if (item.series != null) {
+                DetailActivity.open(a, item.series, h.cover);
+            }
         });
         // Press feedback: the cover sinks slightly like a stamped card.
         h.itemView.setOnTouchListener((v, e) -> {

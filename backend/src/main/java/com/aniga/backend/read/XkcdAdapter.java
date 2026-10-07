@@ -11,7 +11,6 @@ import java.util.Objects;
 import java.util.concurrent.Executors;
 import java.util.concurrent.Future;
 
-import org.jsoup.Jsoup;
 import org.jsoup.nodes.Document;
 import org.springframework.beans.factory.annotation.Value;
 import org.springframework.core.ParameterizedTypeReference;
@@ -23,7 +22,7 @@ import com.aniga.backend.mangadex.Json;
 
 /**
  * xkcd (CC BY-NC 2.5). Two techniques in one adapter:
- * - HTML scraping with Jsoup: /archive/ lists every comic as {@code <a href="/N/" title="date">Title</a>}.
+ * - HTML via {@link HtmlFetch}: /archive/ lists every comic as {@code <a href="/N/" title="date">Title</a>}.
  * - JSON API: /N/info.0.json gives the image URL and alt text for one comic.
  * Comics are grouped into "chapters" of 25 so the vertical reader has something to scroll.
  */
@@ -43,12 +42,14 @@ public class XkcdAdapter implements SourceAdapter {
     }
 
     private final RestClient http;
+    private final HtmlFetch html;
     private final String userAgent;
     private final TtlCache<List<Comic>> archive = new TtlCache<>(Duration.ofHours(6), 2);
     private final TtlCache<Strip> strips = new TtlCache<>(Duration.ofDays(30), 5000);
 
-    public XkcdAdapter(@Value("${aniga.mangadex.user-agent}") String userAgent) {
+    public XkcdAdapter(@Value("${aniga.mangadex.user-agent}") String userAgent, HtmlFetch html) {
         this.userAgent = userAgent;
+        this.html = html;
         this.http = RestClient.builder().baseUrl(BASE).defaultHeader("User-Agent", userAgent).build();
     }
 
@@ -59,14 +60,7 @@ public class XkcdAdapter implements SourceAdapter {
     }
 
     List<Comic> archive() {
-        return archive.get("archive", () -> {
-            try {
-                Document doc = Jsoup.connect(BASE + "/archive/").userAgent(userAgent).timeout(20_000).get();
-                return parseArchive(doc);
-            } catch (java.io.IOException e) {
-                throw new IllegalStateException("xkcd archive unavailable: " + e.getMessage(), e);
-            }
-        });
+        return archive.get("archive", () -> parseArchive(html.get(BASE + "/archive/", userAgent, 20_000)));
     }
 
     static List<Comic> parseArchive(Document doc) {

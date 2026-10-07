@@ -278,6 +278,13 @@ public class ImageSearchService {
         }
     }
 
+    private Media byTitle(String name) {
+        if (name == null || name.isBlank()) {
+            return null;
+        }
+        return media.search(name, null, null, null, 1, 0).stream().findFirst().orElse(null);
+    }
+
     private List<SceneHit> traceMoe(Upload upload) {
         Map<String, Object> body = traceMoe.post()
                 .uri("/search?anilistInfo&cutBorders")
@@ -300,6 +307,14 @@ public class ImageSearchService {
             Map<String, Object> title = Json.map(al.get("title"));
             String name = Json.str(title.get("english")) != null ? Json.str(title.get("english")) : Json.str(title.get("romaji"));
             Media local = id == null ? null : media.byAnilistId(id).orElse(null);
+            // trace.moe may name a title we hold under a different AniList id; fall back to a title search
+            // so the hit still opens a real detail page instead of a dead card.
+            if (local == null) {
+                local = byTitle(name);
+                if (local == null) {
+                    local = byTitle(Json.str(title.get("romaji")));
+                }
+            }
             Object ep = r.get("episode");
             out.add(new SceneHit(id, name, Json.str(title.get("native")),
                     ep instanceof Number n ? n.doubleValue() : null,

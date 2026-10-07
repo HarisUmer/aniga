@@ -35,7 +35,7 @@ public class FirebaseAuthClient {
     @SuppressWarnings("unchecked")
     private FirebaseTokenVerifier.Identity call(String path, String email, String password) {
         if (email == null || !email.contains("@") || password == null || password.length() < 6) {
-            throw new IllegalArgumentException("use an email and a password of at least 6 characters");
+            throw new AuthRejected(AuthRejected.Reason.WEAK, "use an email and a password of at least 6 characters");
         }
         try {
             Map<String, Object> body = http.post()
@@ -51,30 +51,32 @@ public class FirebaseAuthClient {
                     (String) body.get("email"),
                     (String) body.get("displayName"));
         } catch (HttpClientErrorException e) {
-            throw new IllegalArgumentException(translate(e.getResponseBodyAsString()));
+            throw rejected(e.getResponseBodyAsString());
         }
     }
 
     /** Firebase error codes are terse; turn the common ones into something a person can act on. */
-    private static String translate(String responseBody) {
+    private static AuthRejected rejected(String responseBody) {
         String body = responseBody == null ? "" : responseBody;
         if (body.contains("CONFIGURATION_NOT_FOUND")) {
-            return "Firebase Authentication is not enabled yet. In the Firebase console open Authentication, "
-                    + "click Get started, then enable Email/Password.";
+            return new AuthRejected(AuthRejected.Reason.NOT_CONFIGURED,
+                    "Firebase Authentication is not enabled yet. In the Firebase console open Authentication, "
+                            + "click Get started, then enable Email/Password.");
         }
         if (body.contains("EMAIL_EXISTS")) {
-            return "That email already has an account. Sign in instead.";
+            return new AuthRejected(AuthRejected.Reason.EMAIL_TAKEN,
+                    "That email already has an account. Sign in instead.");
         }
         if (body.contains("EMAIL_NOT_FOUND") || body.contains("INVALID_LOGIN_CREDENTIALS")
                 || body.contains("INVALID_PASSWORD")) {
-            return "Wrong email or password.";
+            return new AuthRejected(AuthRejected.Reason.BAD_CREDENTIALS, "Wrong email or password.");
         }
         if (body.contains("WEAK_PASSWORD")) {
-            return "Use a password of at least 6 characters.";
+            return new AuthRejected(AuthRejected.Reason.WEAK, "Use a password of at least 6 characters.");
         }
         if (body.contains("TOO_MANY_ATTEMPTS")) {
-            return "Too many attempts. Wait a bit and try again.";
+            return new AuthRejected(AuthRejected.Reason.BUSY, "Too many attempts. Wait a bit and try again.");
         }
-        return "Sign-in failed.";
+        return new AuthRejected(AuthRejected.Reason.OTHER, "Sign-in failed.");
     }
 }

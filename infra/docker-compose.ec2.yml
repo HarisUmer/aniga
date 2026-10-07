@@ -45,10 +45,9 @@ services:
     ports:
       - "80:80"
       - "443:443"
-    environment:
-      ANIGA_SITE_ADDRESS: ${ANIGA_SITE_ADDRESS:?set in .env}
     volumes:
       - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - ./download:/srv/download:ro
       - caddy-data:/data
       - caddy-config:/config
     depends_on:

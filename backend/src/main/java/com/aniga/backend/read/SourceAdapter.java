@@ -3,8 +3,10 @@ package com.aniga.backend.read;
 import java.util.List;
 
 /**
- * One implementation per API (or, later, per CMS family). Mirrors the shape of Mihon/Keiyoushi sources:
- * browse (popular/search) → series → chapters → pages.
+ * One class per reading source. Annotate it {@code @Component} in this package and Spring hands it to
+ * {@link ReadController}; the app and the web console list it from {@code GET /api/read/sources}.
+ * The records below are the only shapes those clients understand. Field-by-field notes:
+ * {@code learning/18-adding-a-source.md}.
  */
 public interface SourceAdapter {
 

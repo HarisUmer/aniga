@@ -239,6 +239,49 @@
                         app:singleSelection="true" />
                 </HorizontalScrollView>
 
+                <LinearLayout
+                    android:id="@+id/read_controls"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="10dp"
+                    android:orientation="horizontal"
+                    android:visibility="gone">
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/read_start"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_weight="1"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/detail_read_start"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/read_latest"
+                        style="@style/Widget.Material3.Button.TonalButton"
+                        android:layout_width="0dp"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:layout_weight="1"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/detail_read_latest"
+                        android:textSize="12sp" />
+
+                    <com.google.android.material.button.MaterialButton
+                        android:id="@+id/read_jump"
+                        style="@style/Widget.Material3.Button.OutlinedButton"
+                        android:layout_width="wrap_content"
+                        android:layout_height="wrap_content"
+                        android:layout_marginStart="8dp"
+                        android:insetTop="0dp"
+                        android:insetBottom="0dp"
+                        android:text="@string/detail_read_jump"
+                        android:textSize="12sp" />
+                </LinearLayout>
+
                 <com.example.aniga.ui.widget.StatusView
                     android:id="@+id/status"
                     android:layout_width="match_parent"
@@ -250,6 +293,17 @@
                     android:layout_height="wrap_content"
                     android:layoutAnimation="@anim/layout_rise"
                     android:nestedScrollingEnabled="false" />
+
+                <TextView
+                    android:id="@+id/chapters_more"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:layout_marginTop="8dp"
+                    android:background="?attr/selectableItemBackground"
+                    android:gravity="center"
+                    android:paddingVertical="12dp"
+                    android:textAppearance="@style/TextAppearance.Aniga.Kicker"
+                    android:visibility="gone" />
 
                 <TextView
                     android:id="@+id/similar_label"
@@ -281,5 +335,16 @@
         android:background="@drawable/bg_round_scrim"
         android:contentDescription="@string/back"
         android:src="@drawable/ic_back"
+        app:tint="@color/paper_100" />
+
+    <ImageButton
+        android:id="@+id/share"
+        android:layout_width="44dp"
+        android:layout_height="44dp"
+        android:layout_gravity="end"
+        android:layout_marginEnd="12dp"
+        android:background="@drawable/bg_round_scrim"
+        android:contentDescription="@string/detail_share"
+        android:src="@drawable/ic_share"
         app:tint="@color/paper_100" />
 </FrameLayout>

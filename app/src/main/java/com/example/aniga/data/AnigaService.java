@@ -96,6 +96,10 @@ public interface AnigaService {
     @POST("api/chat/direct")
     Call<ChatRoom> openDirect(@Body Map<String, String> body);
 
+    /** Stable public link to this account's ratings and taste report. */
+    @POST("api/me/report")
+    Call<com.example.aniga.data.model.ReportLink> tasteReport();
+
     @POST("api/chat/group")
     Call<ChatRoom> openGroup(@Body Map<String, Object> body);
 
@@ -104,6 +108,10 @@ public interface AnigaService {
 
     @POST("api/chat/rooms/{id}/messages")
     Call<ChatMessage> sendMessage(@Path("id") long roomId, @Body Map<String, String> body);
+
+    /** body + optional share card; Gson serializes the nested share object for the backend. */
+    @POST("api/chat/rooms/{id}/messages")
+    Call<ChatMessage> sendShare(@Path("id") long roomId, @Body Map<String, Object> body);
 
     @GET("api/media")
     Call<List<Media>> media(@Query("q") String query, @Query("type") String type);
@@ -157,6 +165,9 @@ public interface AnigaService {
     @GET("api/users/{id}/library/{mediaId}")
     Call<LibraryState> libraryEntry(@Path("id") long userId, @Path("mediaId") long mediaId);
 
+    @GET("api/users/{id}/updates")
+    Call<List<com.example.aniga.data.model.LibraryUpdate>> updates(@Path("id") long userId);
+
     @PUT("api/users/{id}/library/{mediaId}")
     Call<LibraryState> updateLibrary(@Path("id") long userId, @Path("mediaId") long mediaId,
                                      @Body LibraryState.Update body);
@@ -172,7 +183,13 @@ public interface AnigaService {
 
     @GET("api/read/find")
     Call<List<Series>> find(@Query("title") String title, @Query("lang") String lang,
-                            @Query("aliases") String aliases);
+                            @Query("aliases") String aliases, @Query("type") String type);
+
+    @GET("api/people/search")
+    Call<List<Person>> searchPeople(@Query("q") String query);
+
+    @GET("api/people/requests/outgoing")
+    Call<List<FriendRequest>> outgoingRequests();
 
     @GET("api/read/{source}/series/{id}/chapters")
     Call<List<Chapter>> chapters(@Path("source") String source, @Path("id") String seriesId, @Query("lang") String lang);

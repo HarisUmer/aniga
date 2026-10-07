@@ -1,12 +1,19 @@
 package com.example.aniga.ui.people;
 
 import android.content.Intent;
+import android.graphics.drawable.GradientDrawable;
 import android.os.Bundle;
+import android.os.Handler;
+import android.os.Looper;
+import android.text.Editable;
+import android.text.TextWatcher;
 import android.view.Gravity;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
+import android.widget.HorizontalScrollView;
+import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -26,10 +33,13 @@ import com.example.aniga.data.model.ChatRoom;
 import com.example.aniga.data.model.FriendRequest;
 import com.example.aniga.data.model.Match;
 import com.example.aniga.data.model.Outcome;
+import com.example.aniga.data.model.Media;
 import com.example.aniga.data.model.Person;
 import com.example.aniga.data.model.Personality;
 import com.example.aniga.data.model.ShelfItem;
+import com.example.aniga.ui.Covers;
 import com.example.aniga.ui.Ui;
+import com.example.aniga.ui.detail.DetailActivity;
 import com.example.aniga.ui.widget.StatusView;
 import com.google.android.material.button.MaterialButton;
 
@@ -51,8 +61,12 @@ public class PeopleFragment extends Fragment {
     private LinearLayout requests;
     private LinearLayout friends;
     private LinearLayout matches;
+    private LinearLayout searchHits;
     private EditText addUsername;
     private StatusView status;
+    private final Handler searchHandler = new Handler(Looper.getMainLooper());
+    private List<FriendRequest> incoming = Collections.emptyList();
+    private List<FriendRequest> outgoing = Collections.emptyList();
 
     @Nullable
     @Override
@@ -78,8 +92,25 @@ public class PeopleFragment extends Fragment {
         friends = view.findViewById(R.id.friends);
         matches = view.findViewById(R.id.matches);
         addUsername = view.findViewById(R.id.add_username);
+        searchHits = view.findViewById(R.id.search_hits);
         status = view.findViewById(R.id.status);
 
+        addUsername.addTextChangedListener(new TextWatcher() {
+            @Override
+            public void beforeTextChanged(CharSequence s, int start, int count, int after) {
+            }
+
+            @Override
+            public void onTextChanged(CharSequence s, int start, int before, int count) {
+            }
+
+            @Override
+            public void afterTextChanged(Editable s) {
+                searchHandler.removeCallbacksAndMessages(null);
+                String q = s.toString().trim();
+                searchHandler.postDelayed(() -> search(q), 280);
+            }
+        });
         view.findViewById(R.id.add_button).setOnClickListener(v -> addFriend());
         view.findViewById(R.id.global_button).setOnClickListener(v -> openGlobal());
         load();
@@ -99,6 +130,8 @@ public class PeopleFragment extends Fragment {
         Api.load(getViewLifecycleOwner(), Api.get().personality(), this::showPersonality, e -> {
         });
         Api.load(getViewLifecycleOwner(), Api.get().friendRequests(), this::showRequests, e -> {
+        });
+        Api.load(getViewLifecycleOwner(), Api.get().outgoingRequests(), this::showOutgoing, e -> {
         });
         Api.load(getViewLifecycleOwner(), Api.get().matches(), this::showMatches, e -> {
         });
@@ -159,19 +192,25 @@ public class PeopleFragment extends Fragment {
     }
 
     private void showRequests(List<FriendRequest> list) {
-        requests.removeAllViews();
-        boolean any = list != null && !list.isEmpty();
-        requestsHeader.setVisibility(any ? View.VISIBLE : View.GONE);
-        if (!any) {
+        incoming = list == null ? Collections.emptyList() : list;
+        renderRequests();
+    }
+
+    private void showOutgoing(List<FriendRequest> list) {
+        outgoing = list == null ? Collections.emptyList() : list;
+        renderRequests();
+    }
+
+    private void renderRequests() {
+        if (requests == null) {
             return;
         }
-        for (FriendRequest r : list) {
+        requests.removeAllViews();
+        boolean any = !incoming.isEmpty() || !outgoing.isEmpty();
+        requestsHeader.setVisibility(any ? View.VISIBLE : View.GONE);
+        for (FriendRequest r : incoming) {
             LinearLayout row = card();
-            TextView name = rowTitle(r.name() + "  @" + r.username);
-            LinearLayout bar = new LinearLayout(requireContext());
-            bar.setOrientation(LinearLayout.HORIZONTAL);
-            bar.setGravity(Gravity.CENTER_VERTICAL);
-            bar.addView(name, new LinearLayout.LayoutParams(0, -2, 1f));
+            LinearLayout bar = personBar(r.name(), r.username);
             MaterialButton accept = smallButton(getString(R.string.people_accept), false);
             accept.setOnClickListener(v -> Api.load(getViewLifecycleOwner(),
                     Api.get().acceptRequest(r.id), o -> {
@@ -186,6 +225,48 @@ public class PeopleFragment extends Fragment {
             row.addView(bar);
             requests.addView(row);
         }
+        for (FriendRequest r : outgoing) {
+            LinearLayout row = card();
+            LinearLayout bar = personBar(r.name(), r.username);
+            bar.addView(smallButton(getString(R.string.people_waiting), true));
+            row.addView(bar);
+            requests.addView(row);
+        }
+    }
+
+    private void search(String query) {
+        if (searchHits == null || !isAdded()) {
+            return;
+        }
+        if (!query.equals(addUsername.getText().toString().trim())) {
+            return;
+        }
+        if (query.length() < 2) {
+            searchHits.removeAllViews();
+            return;
+        }
+        Api.load(getViewLifecycleOwner(), Api.get().searchPeople(query), this::showHits, e -> {
+        });
+    }
+
+    private void showHits(List<Person> list) {
+        searchHits.removeAllViews();
+        if (list == null) {
+            return;
+        }
+        for (Person p : list) {
+            LinearLayout row = card();
+            LinearLayout bar = personBar(p.name(), p.username);
+            MaterialButton add = smallButton(getString(R.string.people_add), false);
+            add.setOnClickListener(v -> {
+                addUsername.setText("");
+                searchHits.removeAllViews();
+                sendRequest(p.username);
+            });
+            bar.addView(add);
+            row.addView(bar);
+            searchHits.addView(row);
+        }
     }
 
     private void showFriends(List<Person> list) {
@@ -197,10 +278,7 @@ public class PeopleFragment extends Fragment {
         }
         for (Person p : list) {
             LinearLayout row = card();
-            LinearLayout bar = new LinearLayout(requireContext());
-            bar.setOrientation(LinearLayout.HORIZONTAL);
-            bar.setGravity(Gravity.CENTER_VERTICAL);
-            bar.addView(rowTitle(p.name() + "  @" + p.username), new LinearLayout.LayoutParams(0, -2, 1f));
+            LinearLayout bar = personBar(p.name(), p.username);
             MaterialButton shelf = smallButton(getString(R.string.people_shelf), true);
             shelf.setOnClickListener(v -> openShelf(p));
             MaterialButton chat = smallButton(getString(R.string.people_chat), false);
@@ -220,24 +298,14 @@ public class PeopleFragment extends Fragment {
         }
         for (Match m : list) {
             LinearLayout row = card();
-            LinearLayout head = new LinearLayout(requireContext());
-            head.setOrientation(LinearLayout.HORIZONTAL);
-            head.setGravity(Gravity.CENTER_VERTICAL);
-            head.addView(rowTitle(m.name() + "  @" + m.username), new LinearLayout.LayoutParams(0, -2, 1f));
+            LinearLayout head = personBar(m.name(), m.username);
             MaterialButton add = smallButton(getString(R.string.people_add), false);
             add.setOnClickListener(v -> sendRequest(m.username));
             head.addView(add);
             row.addView(head);
-
-            TextView meta = metaLine(getString(R.string.people_affinity, m.shared,
-                    String.format(Locale.ROOT, "%.1f", m.affinity)));
-            row.addView(meta);
+            row.addView(affinityBar(m.shared));
             if (m.blurb != null) {
                 row.addView(metaLine(m.blurb));
-            }
-            if (m.theirPicks != null && !m.theirPicks.isEmpty()) {
-                row.addView(metaLine(getString(R.string.people_their_picks,
-                        android.text.TextUtils.join(", ", m.theirPicks))));
             }
             matches.addView(row);
         }
@@ -290,23 +358,94 @@ public class PeopleFragment extends Fragment {
     }
 
     private void showShelf(Person p, List<ShelfItem> items) {
-        StringBuilder sb = new StringBuilder();
         if (items == null || items.isEmpty()) {
-            sb.append(getString(R.string.people_shelf_empty));
-        } else {
-            for (ShelfItem it : items) {
-                sb.append("• ").append(it.title);
-                if (it.score != null && it.score > 0) {
-                    sb.append("  ").append(it.score).append("/10");
-                }
-                sb.append('\n');
-            }
+            new AlertDialog.Builder(requireContext())
+                    .setTitle(p.name())
+                    .setMessage(getString(R.string.people_shelf_empty))
+                    .setPositiveButton(R.string.back, null)
+                    .show();
+            return;
         }
+        HorizontalScrollView scroller = new HorizontalScrollView(requireContext());
+        scroller.setHorizontalScrollBarEnabled(false);
+        LinearLayout row = new LinearLayout(requireContext());
+        row.setOrientation(LinearLayout.HORIZONTAL);
+        int pad = (int) Ui.dp(requireContext(), 16);
+        row.setPadding(pad, pad, pad, pad);
+        int w = (int) Ui.dp(requireContext(), 76);
+        int h = (int) Ui.dp(requireContext(), 114);
+        int gap = (int) Ui.dp(requireContext(), 8);
+        int shown = 0;
+        for (ShelfItem it : items) {
+            if (shown++ >= 16) {
+                break;
+            }
+            ImageView cover = new ImageView(requireContext());
+            LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(w, h);
+            lp.setMarginEnd(gap);
+            Covers.load(cover, it.coverUrl, it.title, it.mediaType);
+            cover.setContentDescription(it.title);
+            cover.setOnClickListener(v -> {
+                Media m = new Media();
+                m.id = it.mediaId;
+                m.title = it.title;
+                m.coverUrl = it.coverUrl;
+                m.mediaType = it.mediaType;
+                DetailActivity.open(requireActivity(), m, cover);
+            });
+            row.addView(cover, lp);
+        }
+        scroller.addView(row);
         new AlertDialog.Builder(requireContext())
                 .setTitle(p.name())
-                .setMessage(sb.toString().trim())
+                .setView(scroller)
                 .setPositiveButton(R.string.back, null)
                 .show();
+    }
+
+    private View affinityBar(int shared) {
+        LinearLayout track = new LinearLayout(requireContext());
+        track.setOrientation(LinearLayout.HORIZONTAL);
+        int h = (int) Ui.dp(requireContext(), 8);
+        LinearLayout.LayoutParams lp = new LinearLayout.LayoutParams(-1, h);
+        lp.topMargin = (int) Ui.dp(requireContext(), 8);
+        track.setLayoutParams(lp);
+        int fill = Math.max(1, Math.min(12, shared));
+        View on = new View(requireContext());
+        on.setBackgroundColor(Ui.color(requireContext(), R.color.hanko));
+        track.addView(on, new LinearLayout.LayoutParams(0, h, fill));
+        View rest = new View(requireContext());
+        rest.setBackgroundColor(Ui.color(requireContext(), R.color.ink_700));
+        track.addView(rest, new LinearLayout.LayoutParams(0, h, Math.max(1, 12 - fill)));
+        return track;
+    }
+
+    private LinearLayout personBar(String name, String username) {
+        LinearLayout bar = new LinearLayout(requireContext());
+        bar.setOrientation(LinearLayout.HORIZONTAL);
+        bar.setGravity(Gravity.CENTER_VERTICAL);
+        String letter = name == null || name.isEmpty() ? "?" : name.substring(0, 1).toUpperCase(Locale.ROOT);
+        TextView mark = seal(letter);
+        LinearLayout.LayoutParams markLp = new LinearLayout.LayoutParams(
+                (int) Ui.dp(requireContext(), 40), (int) Ui.dp(requireContext(), 40));
+        markLp.setMarginEnd((int) Ui.dp(requireContext(), 10));
+        bar.addView(mark, markLp);
+        bar.addView(rowTitle(name + "  @" + username), new LinearLayout.LayoutParams(0, -2, 1f));
+        return bar;
+    }
+
+    private TextView seal(String letter) {
+        TextView tv = new TextView(requireContext());
+        tv.setText(letter);
+        tv.setGravity(Gravity.CENTER);
+        tv.setTextColor(Ui.color(requireContext(), R.color.ink_950));
+        tv.setTextAppearance(R.style.TextAppearance_Aniga_Headline);
+        tv.setTextSize(16);
+        GradientDrawable bg = new GradientDrawable();
+        bg.setShape(GradientDrawable.OVAL);
+        bg.setColor(Ui.color(requireContext(), R.color.hanko));
+        tv.setBackground(bg);
+        return tv;
     }
 
     // --- small view builders in the app's ink/paper style ---

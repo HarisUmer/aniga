@@ -56,6 +56,10 @@ public class AccountService {
             }
             return existing.get();
         }
+        User adopted = adoptEmail(identity);
+        if (adopted != null) {
+            return adopted;
+        }
         String base = usernameFor(identity.email(), identity.uid());
         String display = identity.name() != null && !identity.name().isBlank() ? identity.name() : base;
         for (int n = 0; n < 50; n++) {
@@ -75,9 +79,99 @@ public class AccountService {
             } catch (DataIntegrityViolationException e) {
                 Optional<User> raced = findByUid(identity.uid());
                 if (raced.isPresent()) return raced.get();
+                User adoptedLater = adoptEmail(identity);
+                if (adoptedLater != null) return adoptedLater;
             }
         }
         throw new IllegalArgumentException("could not allocate a username");
+    }
+
+    /** Attach a Firebase uid to the row that already has this email, and keep its password hash. */
+    private User adoptEmail(FirebaseTokenVerifier.Identity identity) {
+        if (identity.email() == null || identity.email().isBlank()) {
+            return null;
+        }
+        Optional<Long> id = jdbc.sql("SELECT id FROM app_user WHERE lower(email) = lower(:e)")
+                .param("e", identity.email().trim())
+                .query(Long.class)
+                .optional();
+        if (id.isEmpty()) {
+            return null;
+        }
+        int updated = jdbc.sql("""
+                        UPDATE app_user SET firebase_uid = :f
+                        WHERE id = :id AND (firebase_uid IS NULL OR firebase_uid = :f)""")
+                .param("f", identity.uid())
+                .param("id", id.get())
+                .update();
+        if (updated == 1) {
+            return byId(id.get()).orElseThrow();
+        }
+        throw new AuthRejected(AuthRejected.Reason.EMAIL_TAKEN,
+                "That email already has an account. Sign in instead.");
+    }
+
+    /** An account whose password lives in Postgres, used while Firebase Email/Password is off. */
+    public User registerLocal(String email, String password) {
+        String normalized = email.trim().toLowerCase(Locale.ROOT);
+        if (emailTaken(normalized)) {
+            throw new AuthRejected(AuthRejected.Reason.EMAIL_TAKEN,
+                    "That email already has an account. Sign in instead.");
+        }
+        String hash = PasswordHasher.hash(password);
+        String base = usernameFor(normalized, "local");
+        for (int n = 0; n < 50; n++) {
+            String username = n == 0 ? base : trim(base + "_" + (n + 1));
+            if (taken(username)) {
+                continue;
+            }
+            try {
+                return jdbc.sql("""
+                                INSERT INTO app_user (username, display_name, email, password_hash)
+                                VALUES (:u, :d, :e, :p)
+                                RETURNING id, username, display_name""")
+                        .param("u", username)
+                        .param("d", base)
+                        .param("e", normalized)
+                        .param("p", hash)
+                        .query((rs, i) -> new User(rs.getLong(1), rs.getString(2), rs.getString(3)))
+                        .single();
+            } catch (DataIntegrityViolationException e) {
+                if (emailTaken(normalized)) {
+                    throw new AuthRejected(AuthRejected.Reason.EMAIL_TAKEN,
+                            "That email already has an account. Sign in instead.");
+                }
+            }
+        }
+        throw new IllegalArgumentException("could not allocate a username");
+    }
+
+    /** Empty when this email has no local password, or the password does not match. */
+    public Optional<User> authenticateLocal(String email, String password) {
+        if (email == null || password == null) {
+            return Optional.empty();
+        }
+        record Row(long id, String username, String displayName, String hash) {
+        }
+        Optional<Row> row = jdbc.sql("""
+                        SELECT id, username, display_name, password_hash
+                        FROM app_user
+                        WHERE lower(email) = lower(:e) AND password_hash IS NOT NULL
+                        ORDER BY id
+                        LIMIT 1""")
+                .param("e", email.trim())
+                .query((rs, i) -> new Row(rs.getLong(1), rs.getString(2), rs.getString(3), rs.getString(4)))
+                .optional();
+        if (row.isEmpty() || !PasswordHasher.verify(password, row.get().hash())) {
+            return Optional.empty();
+        }
+        Row found = row.get();
+        return Optional.of(new User(found.id(), found.username(), found.displayName()));
+    }
+
+    private boolean emailTaken(String normalizedEmail) {
+        return jdbc.sql("SELECT id FROM app_user WHERE lower(email) = :e")
+                .param("e", normalizedEmail).query(Long.class).optional().isPresent();
     }
 
     private boolean taken(String username) {

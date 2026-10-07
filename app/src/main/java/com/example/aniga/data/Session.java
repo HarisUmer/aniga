@@ -14,6 +14,7 @@ public final class Session {
     private static final String KEY_TOKEN = "session_token";
     private static final String KEY_READER_THEME = "reader_theme";
     private static final String KEY_LANG = "reading_lang";
+    private static final String KEY_PREFS_USER = "prefs_user";
 
     private Session() {
     }
@@ -42,12 +43,22 @@ public final class Session {
 
     public static void signIn(Context c, long id, String name, String token) {
         c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
-                .putLong(KEY_USER, id).putString(KEY_USER_NAME, name).putString(KEY_TOKEN, token).apply();
+                .putLong(KEY_USER, id).putString(KEY_USER_NAME, name).putString(KEY_TOKEN, token).commit();
     }
 
     public static void signOut(Context c) {
         c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
                 .remove(KEY_USER).remove(KEY_USER_NAME).remove(KEY_TOKEN).apply();
+    }
+
+    /** True once this account has picked a taste, or skipped the question. */
+    public static boolean prefsDone(Context c) {
+        return c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).getLong(KEY_PREFS_USER, 0L) == userId(c);
+    }
+
+    public static void setPrefsDone(Context c) {
+        c.getSharedPreferences(PREFS, Context.MODE_PRIVATE).edit()
+                .putLong(KEY_PREFS_USER, userId(c)).apply();
     }
 
     /** Chapter language for every reading source; codes as the catalog uses them (en, es, pt-BR, ja…). */

@@ -1,6 +1,7 @@
 package com.aniga.backend.read;
 
 import static org.junit.jupiter.api.Assertions.assertEquals;
+import static org.junit.jupiter.api.Assertions.assertNull;
 import static org.junit.jupiter.api.Assertions.assertTrue;
 
 import java.util.List;
@@ -35,5 +36,14 @@ class TitleMatchTest {
     @Test
     void splitAliasesKeepsOrderAndDropsBlanks() {
         assertEquals(List.of("TBATE", "나 혼자만 레벨업"), ChapterFinder.splitAliases("TBATE | | 나 혼자만 레벨업"));
+    }
+
+    @Test
+    void originalLanguageFollowsTheCatalogType() {
+        assertEquals("ko", ChapterFinder.originalLanguage("MANHWA"));
+        assertEquals("zh", ChapterFinder.originalLanguage("manhua"));
+        assertEquals("ja", ChapterFinder.originalLanguage("MANGA"));
+        assertNull(ChapterFinder.originalLanguage("ANIME"));
+        assertNull(ChapterFinder.originalLanguage(null));
     }
 }

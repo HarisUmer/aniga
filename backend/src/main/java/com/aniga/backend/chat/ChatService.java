@@ -8,17 +8,25 @@ import org.springframework.jdbc.core.simple.JdbcClient;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import tools.jackson.databind.json.JsonMapper;
+
 @Service
 public class ChatService {
 
     public record Room(long id, String roomType, String title, String peer) {
     }
 
+    /** A title shared into chat, rendered as a card. kind is "reading" or "rating". */
+    public record Share(String kind, Long mediaId, String source, String seriesId, String title,
+                        String coverUrl, String mediaType, Integer score, String note) {
+    }
+
     public record Message(long id, long roomId, Long senderId, String sender, String body,
-                          String sentAt, List<String> mentions) {
+                          String sentAt, List<String> mentions, Share share) {
     }
 
     private final JdbcClient jdbc;
+    private final JsonMapper json = JsonMapper.builder().build();
 
     public ChatService(JdbcClient jdbc) {
         this.jdbc = jdbc;
@@ -46,7 +54,7 @@ public class ChatService {
             throw new IllegalArgumentException("username is required");
         }
         String name = username.trim().toLowerCase(Locale.ROOT);
-        Long other = jdbc.sql("SELECT id FROM app_user WHERE username = :u")
+        Long other = jdbc.sql("SELECT id FROM app_user WHERE lower(username) = :u")
                 .param("u", name).query(Long.class).optional().orElse(null);
         if (other == null) {
             throw new java.util.NoSuchElementException("no user named " + name);
@@ -116,7 +124,7 @@ public class ChatService {
     public List<Message> messages(long me, long roomId) {
         assertMember(me, roomId);
         List<Long> ids = jdbc.sql("""
-                        SELECT id FROM chat_message WHERE room_id = :r ORDER BY sent_at DESC LIMIT 50""")
+                        SELECT id FROM chat_message WHERE room_id = :r ORDER BY sent_at DESC LIMIT 400""")
                 .param("r", roomId).query(Long.class).list();
         List<Message> out = new ArrayList<>();
         for (int i = ids.size() - 1; i >= 0; i--) out.add(get(ids.get(i)));
@@ -124,18 +132,22 @@ public class ChatService {
     }
 
     @Transactional
-    public Message post(long me, long roomId, String body) {
-        if (body == null || body.isBlank()) {
+    public Message post(long me, long roomId, String body, Share share) {
+        String text = body == null ? "" : body.trim();
+        if (text.isEmpty() && share == null) {
             throw new IllegalArgumentException("message is empty");
         }
-        if (body.length() > 2000) {
+        if (text.length() > 2000) {
             throw new IllegalArgumentException("message is too long");
         }
         assertMember(me, roomId);
-        String text = body.trim();
+        share = withScore(me, share);
+        String shareJson = writeShare(share);
         long id = jdbc.sql("""
-                        INSERT INTO chat_message (room_id, sender_id, body) VALUES (:r, :s, :b) RETURNING id""")
-                .param("r", roomId).param("s", me).param("b", text).query(Long.class).single();
+                        INSERT INTO chat_message (room_id, sender_id, body, share)
+                        VALUES (:r, :s, :b, CAST(:share AS jsonb)) RETURNING id""")
+                .param("r", roomId).param("s", me).param("b", text).param("share", shareJson)
+                .query(Long.class).single();
         for (String name : Mentions.usernames(text)) {
             jdbc.sql("""
                             INSERT INTO chat_mention (message_id, user_id)
@@ -145,9 +157,23 @@ public class ChatService {
         return get(id);
     }
 
+    /** A shared title shows the sender's score when they have rated it. */
+    private Share withScore(long me, Share share) {
+        if (share == null || share.mediaId() == null || share.score() != null) {
+            return share;
+        }
+        Integer score = jdbc.sql("SELECT score FROM rating WHERE user_id = :u AND media_id = :m")
+                .param("u", me).param("m", share.mediaId()).query(Integer.class).optional().orElse(null);
+        if (score == null) {
+            return share;
+        }
+        return new Share("rating", share.mediaId(), share.source(), share.seriesId(), share.title(),
+                share.coverUrl(), share.mediaType(), score, share.note());
+    }
+
     public Message get(long id) {
         Message message = jdbc.sql("""
-                        SELECT m.id, m.room_id, m.sender_id, u.username, m.body, m.sent_at
+                        SELECT m.id, m.room_id, m.sender_id, u.username, m.body, m.sent_at, m.share::text AS share
                         FROM chat_message m
                         LEFT JOIN app_user u ON u.id = m.sender_id
                         WHERE m.id = :id""")
@@ -157,7 +183,8 @@ public class ChatService {
                     Long senderId = rs.wasNull() ? null : senderRaw;
                     return new Message(rs.getLong("id"), rs.getLong("room_id"), senderId,
                             rs.getString("username"), rs.getString("body"),
-                            rs.getTimestamp("sent_at").toInstant().toString(), List.of());
+                            rs.getTimestamp("sent_at").toInstant().toString(), List.of(),
+                            readShare(rs.getString("share")));
                 })
                 .optional()
                 .orElseThrow(() -> new java.util.NoSuchElementException("message not found"));
@@ -167,7 +194,22 @@ public class ChatService {
                         WHERE cm.message_id = :id ORDER BY u.username""")
                 .param("id", id).query(String.class).list();
         return new Message(message.id(), message.roomId(), message.senderId(), message.sender(),
-                message.body(), message.sentAt(), mentions);
+                message.body(), message.sentAt(), mentions, message.share());
+    }
+
+    private String writeShare(Share share) {
+        return share == null ? null : json.writeValueAsString(share);
+    }
+
+    private Share readShare(String raw) {
+        if (raw == null || raw.isBlank()) {
+            return null;
+        }
+        try {
+            return json.readValue(raw, Share.class);
+        } catch (RuntimeException e) {
+            return null;
+        }
     }
 
     private void assertMember(long userId, long roomId) {

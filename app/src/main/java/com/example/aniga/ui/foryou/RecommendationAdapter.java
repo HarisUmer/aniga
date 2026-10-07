@@ -9,7 +9,6 @@ import android.widget.ImageView;
 import android.widget.TextView;
 
 import androidx.annotation.NonNull;
-import androidx.appcompat.app.AppCompatActivity;
 import androidx.lifecycle.LifecycleOwner;
 import androidx.recyclerview.widget.RecyclerView;
 
@@ -91,10 +90,10 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecommendationAd
         h.type.setTextColor(typeColor);
         h.explore.setVisibility(r.isExplore() ? View.VISIBLE : View.GONE);
         h.title.setText(m.title);
-        h.reasons.setText(r.reasons == null ? "" : String.join("  ·  ", r.reasons));
+        h.reasons.setVisibility(View.GONE);
         h.match.setIndicatorColor(typeColor);
         h.match.setProgressCompat((int) (1000 * Math.max(0, r.score) / best), true);
-        h.matchLabel.setText(String.format(Locale.ROOT, "%.2f", r.score));
+        h.matchLabel.setVisibility(View.GONE);
         Covers.load(h.cover, m.coverUrl, m.title, m.mediaType);
         h.itemView.setOnClickListener(v -> {
             send(v, m.id, "CLICK", false);
@@ -102,11 +101,10 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecommendationAd
         });
         Integer given = rated.get(m.id);
         h.rate.setText(given != null && given > 0 ? "★ " + given : h.itemView.getContext().getString(R.string.rate));
-        h.rate.setOnClickListener(v -> RateSheet.show((AppCompatActivity) v.getContext(), m, s -> {
-            rated.put(m.id, s.score);
-            int pos = h.getBindingAdapterPosition();
-            if (pos >= 0) notifyItemChanged(pos);
-            // A rating is a reward too; the server already took the step.
+        h.rate.setOnClickListener(v -> RateSheet.show(v.getContext(), m, s -> {
+            // Update the stamp in place. notifyItemChanged here runs while the list under the
+            // sheet is still laying out (the second screen of For You) and force-closes the app.
+            paintScore(m.id, s.score);
             onLearned.run();
         }));
         boolean isLiked = liked.contains(m.id);
@@ -168,6 +166,35 @@ public class RecommendationAdapter extends RecyclerView.Adapter<RecommendationAd
                         notifyItemRangeChanged(at, items.size() - at);
                     }
                 }).show();
+    }
+
+    private void paintScore(long mediaId, int score) {
+        rated.put(mediaId, score);
+        if (recycler == null) {
+            return;
+        }
+        Runnable job = () -> {
+            int pos = -1;
+            for (int i = 0; i < items.size(); i++) {
+                if (items.get(i).media != null && items.get(i).media.id == mediaId) {
+                    pos = i;
+                    break;
+                }
+            }
+            if (pos < 0) {
+                return;
+            }
+            RecyclerView.ViewHolder vh = recycler.findViewHolderForAdapterPosition(pos);
+            if (vh instanceof Holder) {
+                Holder holder = (Holder) vh;
+                holder.rate.setText(score > 0 ? "★ " + score : holder.itemView.getContext().getString(R.string.rate));
+            }
+        };
+        if (recycler.isComputingLayout()) {
+            recycler.post(job);
+        } else {
+            job.run();
+        }
     }
 
     private void send(View v, long mediaId, String kind, boolean refresh) {

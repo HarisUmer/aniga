@@ -1,7 +1,9 @@
 package com.example.aniga;
 
+import android.content.Intent;
 import android.os.Bundle;
 import android.view.View;
+import android.widget.Toast;
 
 import androidx.activity.EdgeToEdge;
 import androidx.appcompat.app.AppCompatActivity;
@@ -12,12 +14,14 @@ import androidx.fragment.app.Fragment;
 import androidx.fragment.app.FragmentManager;
 import androidx.fragment.app.FragmentTransaction;
 
+import com.example.aniga.data.Api;
 import com.example.aniga.data.Progress;
 import com.example.aniga.data.Session;
 import com.example.aniga.ui.discover.DiscoverFragment;
 import com.example.aniga.ui.foryou.ForYouFragment;
 import com.example.aniga.ui.home.HomeFragment;
 import com.example.aniga.ui.library.LibraryFragment;
+import com.example.aniga.ui.people.ChatActivity;
 import com.example.aniga.ui.people.PeopleFragment;
 import com.example.aniga.ui.widget.InkNavView;
 
@@ -52,6 +56,7 @@ public class MainActivity extends AppCompatActivity {
             return insets;
         });
         Progress.load(this, Session.userId(this));
+        findViewById(R.id.global_chat).setOnClickListener(v -> openGlobal());
         nav.setOnSelect(this::show);
         int tab = savedInstanceState == null ? 0 : savedInstanceState.getInt(STATE_TAB, 0);
         nav.select(tab, false);
@@ -62,6 +67,18 @@ public class MainActivity extends AppCompatActivity {
     protected void onSaveInstanceState(Bundle out) {
         super.onSaveInstanceState(out);
         out.putInt(STATE_TAB, current);
+    }
+
+    private void openGlobal() {
+        Api.load(this, Api.get().globalRoom(), room -> {
+            if (room == null) {
+                Toast.makeText(this, R.string.people_request_failed, Toast.LENGTH_SHORT).show();
+                return;
+            }
+            startActivity(new Intent(this, ChatActivity.class)
+                    .putExtra(ChatActivity.EXTRA_ROOM_ID, room.id)
+                    .putExtra(ChatActivity.EXTRA_TITLE, getString(R.string.people_global_title)));
+        }, e -> Toast.makeText(this, R.string.people_request_failed, Toast.LENGTH_SHORT).show());
     }
 
     private void show(int index) {

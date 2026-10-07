@@ -91,7 +91,7 @@ Then that's the result, and it's reported. Published work has shown neural recom
 A smoke script walks every readable catalog extension through the same endpoints the apps use: popular → chapters → pages. 62 of 63 pass. Afrikaans is genuinely empty on MangaDex, and the UI says so instead of failing. Separately, a health check hits all 1,778 site home pages and classifies them UP / MOVED / BLOCKED / DOWN.
 
 **Q: Why not scrape the other 1,700 sites?**
-Most host unlicensed scans. We list and health-check them (useful catalog data) but only read through official APIs or openly licensed sources. Adding a legal source is one class implementing `SourceAdapter`.
+Most host unlicensed scans. We list and health-check them. Reading in-app started with official APIs and openly licensed comics; AsuraComic, MangaTown, and MangaGeko were added later as HTML adapters. Adding a source is one class implementing `SourceAdapter`.
 
 **Q: The nastiest bug?**
 MangaDex's `includeExternalUrl=1` reads like "include external too" but means "only external". Every chapter list came back empty for hosted titles. The second was licensed titles still matching the language filter after their chapters were removed. I fixed that by deriving "popular" from recently published readable chapters.

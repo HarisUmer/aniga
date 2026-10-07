@@ -87,6 +87,9 @@ class FirebaseIdentityTest {
         assertTrue(AuthFilter.requiresAuth("GET", "/api/users/5/library"));
         assertFalse(AuthFilter.requiresAuth("GET", "/api/read/mangadex/popular"));
         assertFalse(AuthFilter.requiresAuth("POST", "/api/auth/login"));
+        assertFalse(AuthFilter.requiresAuth("GET", "/api/media"));
+        assertFalse(AuthFilter.requiresAuth("GET", "/api/media/12"));
+        assertFalse(AuthFilter.requiresAuth("GET", "/api/sources"));
     }
 
     @Test

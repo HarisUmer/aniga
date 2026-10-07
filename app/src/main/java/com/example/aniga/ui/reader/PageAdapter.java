@@ -1,5 +1,6 @@
 package com.example.aniga.ui.reader;
 
+import android.app.Activity;
 import android.content.Context;
 import android.graphics.drawable.Drawable;
 import android.view.LayoutInflater;
@@ -19,6 +20,7 @@ import com.bumptech.glide.load.engine.GlideException;
 import com.bumptech.glide.request.RequestListener;
 import com.bumptech.glide.request.target.Target;
 import com.example.aniga.R;
+import com.example.aniga.ui.RemoteImages;
 import com.example.aniga.ui.Ui;
 import com.example.aniga.ui.widget.RollingBallView;
 
@@ -122,19 +124,35 @@ public class PageAdapter extends RecyclerView.Adapter<RecyclerView.ViewHolder> {
     }
 
     private void load(PageHolder h, int position, boolean useFallback) {
-        String url = useFallback ? fallbacks.get(position) : urls.get(position);
+        if (position < 0 || position >= urls.size()) {
+            return;
+        }
+        String url = useFallback
+                ? (position < fallbacks.size() ? fallbacks.get(position) : null)
+                : urls.get(position);
+        if (url == null || url.isEmpty()) {
+            return;
+        }
+        Context context = h.image.getContext();
+        if (context instanceof Activity) {
+            Activity activity = (Activity) context;
+            if (activity.isFinishing() || activity.isDestroyed()) {
+                return;
+            }
+        }
+        int width = context.getResources().getDisplayMetrics().widthPixels;
         Glide.with(h.image)
-                .load(url)
-                .dontTransform()
+                .load(RemoteImages.model(url))
                 .format(DecodeFormat.PREFER_RGB_565)
-                .override(Target.SIZE_ORIGINAL)
+                .override(Math.max(width, 1), 2400)
+                .fitCenter()
                 .listener(new RequestListener<Drawable>() {
                     @Override
                     public boolean onLoadFailed(@Nullable GlideException e, @Nullable Object model,
                                                 Target<Drawable> target, boolean isFirstResource) {
                         if (h.getBindingAdapterPosition() != position) return false;
                         // MD@Home nodes 404 on cold cache misses; the origin always has the file.
-                        if (!useFallback && position < fallbacks.size()) {
+                        if (!useFallback && position < fallbacks.size() && fallbacks.get(position) != null) {
                             h.image.post(() -> load(h, position, true));
                         } else {
                             h.label.post(() -> {

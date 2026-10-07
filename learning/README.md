@@ -171,3 +171,4 @@ The screens above are the pitch. The pages below are the making of them, for any
 | [Speed and motion](16-performance-and-motion.md) | A faster find, and movement with a reason |
 | [Questions worth asking](interview-defense.md) | Short answers, if someone presses |
 | [A research sketch](research/recommender-research-proposal.md) | An idea for a later model |
+| [Adding a reading source](18-adding-a-source.md) | The file, the records, and the one class that registers itself |

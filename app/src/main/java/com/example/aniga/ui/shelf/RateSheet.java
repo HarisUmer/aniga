@@ -1,5 +1,7 @@
 package com.example.aniga.ui.shelf;
 
+import android.content.Context;
+import android.content.ContextWrapper;
 import android.view.View;
 import android.widget.LinearLayout;
 import android.widget.TextView;
@@ -20,7 +22,11 @@ public final class RateSheet {
     private RateSheet() {
     }
 
-    public static void show(AppCompatActivity activity, Media m, Consumer<LibraryState> onChange) {
+    public static void show(Context context, Media m, Consumer<LibraryState> onChange) {
+        AppCompatActivity activity = activityOf(context);
+        if (activity == null || activity.isFinishing() || m == null) {
+            return;
+        }
         BottomSheetDialog dialog = new BottomSheetDialog(activity);
         LinearLayout root = new LinearLayout(activity);
         root.setOrientation(LinearLayout.VERTICAL);
@@ -30,12 +36,13 @@ public final class RateSheet {
 
         TextView type = new TextView(activity);
         type.setTextAppearance(R.style.TextAppearance_Aniga_Kicker);
-        type.setText(m.mediaType + (m.total() != null ? "  ·  " + m.total() + (m.isAnime() ? " episodes" : " chapters") : ""));
+        String kind = m.mediaType == null ? "" : m.mediaType;
+        type.setText(kind + (m.total() != null ? "  ·  " + m.total() + (m.isAnime() ? " episodes" : " chapters") : ""));
         type.setTextColor(Ui.typeColor(activity, m.mediaType));
         root.addView(type);
         TextView title = new TextView(activity);
         title.setTextAppearance(R.style.TextAppearance_Aniga_Headline);
-        title.setText(m.title);
+        title.setText(m.title == null ? "" : m.title);
         root.addView(title);
 
         ShelfPanel panel = new ShelfPanel(activity);
@@ -49,5 +56,16 @@ public final class RateSheet {
         View sheet = (View) root.getParent();
         if (sheet != null) sheet.setBackgroundColor(Ui.color(activity, R.color.ink_800));
         dialog.show();
+    }
+
+    private static AppCompatActivity activityOf(Context context) {
+        Context current = context;
+        while (current instanceof ContextWrapper) {
+            if (current instanceof AppCompatActivity) {
+                return (AppCompatActivity) current;
+            }
+            current = ((ContextWrapper) current).getBaseContext();
+        }
+        return null;
     }
 }
