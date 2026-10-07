@@ -1,32 +1,83 @@
-# Aniga
+<p align="center">
+  <img src="learning/assets/android-splash-sequence.png" alt="A vermilion seal stamps the name Aniga onto a black screen" width="100%">
+</p>
 
-Android client and API for anime metadata, manga / manhwa / manhua reading, and taste-based recommendations.
+<h1 align="center">Aniga</h1>
 
-| Path | Role |
-|------|------|
-| `app/` | Android client. Screens live under `ui/` (home, for you, discover, reader, library, people). `data/` is the API client and models. |
-| `backend/` | Spring Boot API. One deployable, packages by feature: `auth`, `chat`, `people`, `read`, `recommend`, `media`, `search`, `source`, `user`. |
-| `backend/src/main/resources/static/` | Browser console: `index.html` (markup), `console.css` (styles), `js/console.js` (behavior). |
-| `infra/` | Local Compose, server Compose, Caddy, SQL init, deploy script. |
-| `ml/` | Synthetic users and recommender training. Generated datasets stay on the machine (`ml/data` is ignored). |
-| `tools/` | Catalog ingest, AniList sync, console checks. |
-| `learning/` | Notes on what was built and why. |
+<p align="center">
+  <strong>Tonight's pull list, printed in ink.</strong><br>
+  A shelf for anime, manga, manhwa, and manhua that learns what you would actually finish.
+</p>
 
-## Configuration
+<p align="center">
+  <img src="learning/assets/android-home.png" alt="The shelf opens on a manga-page spread of tonight's three picks" width="320">
+</p>
 
-Secrets and the live API host are not in source. Each machine keeps its own files:
+<p align="center">
+  Open the app and the first thing you see is a page, not a feed.<br>
+  Three covers, laid out like a printed spread, with a reason written under the one it thinks you will love.
+</p>
 
-| File | Used by |
-|------|---------|
-| `infra/.env` (from `infra/.env.example`) | Compose: database password, Firebase project, API key, session secret, admin token, public site address |
-| `aniga.local.properties` (from `aniga.local.properties.example`) | Android build: `aniga.apiBaseUrl` |
-| `ANIGA_API_BASE_URL` | Same Android setting, when the properties file is absent (CI) |
+<br>
 
-Local Compose will start without Firebase filled in. Sign-in stays off until `FIREBASE_PROJECT_ID` and `FIREBASE_API_KEY` are set. The server Compose file refuses to start unless those values, the session secret, the admin token, and `ANIGA_SITE_ADDRESS` are present.
+<table>
+  <tr>
+    <td align="center" width="33%" valign="top">
+      <img src="learning/assets/android-foryou.png" alt="For You shows which genres pull you in and which push you away" width="230"><br><br>
+      <strong>It tells you why</strong><br>
+      Drama pulls you in. Tournaments push you away. The list under that is ranked from your ratings, and every row says so in a sentence.
+    </td>
+    <td align="center" width="33%" valign="top">
+      <img src="learning/assets/android-discover.png" alt="Discover search results for Chainsaw Man, cover after cover" width="230"><br><br>
+      <strong>Then you go looking</strong><br>
+      Type a title, describe the story, or bring a picture. The chapter is one tap from the cover.
+    </td>
+    <td align="center" width="33%" valign="top">
+      <img src="learning/assets/android-detail.png" alt="A title page for Grandmaster of Demonic Cultivation, with the first chapters ready" width="230"><br><br>
+      <strong>And you stay</strong><br>
+      The cover, the story, and the chapter list live on one quiet page, tinted by the art itself.
+    </td>
+  </tr>
+</table>
 
-The Android build writes `BuildConfig.API_BASE_URL` and a network security config from that host. The default, with no local file, is the emulator address `http://10.0.2.2:8080/`.
+<br>
 
-## Run locally
+## Read it the way paper feels
+
+<p align="center">
+  <img src="learning/assets/android-reader-sepia.png" alt="A chapter open in warm sepia, with night, paper, and black one tap away" width="320">
+</p>
+
+<p align="center">
+  Night ink. Sepia. Paper. True black.<br>
+  Scroll, and the chrome gets out of the way. Reach the end, and the shelf remembers where you stopped.
+</p>
+
+<p align="center">
+  <img src="learning/assets/android-reader-end.png" alt="The end of a chapter, with a small ball waiting and a button for the next one" width="320">
+</p>
+
+<br>
+
+## The same shelf, on a wider page
+
+<p align="center">
+  <img src="learning/assets/web-shelf.png" alt="The browser shelf, with the same manga-page hero and a row of covers underneath" width="100%">
+</p>
+
+<p align="center">
+  Phone or browser, it is one shelf. Same covers. Same reasons. Same page you were in the middle of.
+</p>
+
+<p align="center">
+  <a href="learning/README.md"><strong>Walk through every screen →</strong></a>
+</p>
+
+<br>
+
+## Open it
+
+The console runs on your machine.
 
 ```powershell
 cd infra
@@ -34,19 +85,6 @@ copy .env.example .env
 docker compose up -d --build
 ```
 
-Open http://localhost:8080. Adminer is on http://localhost:8081 (server `postgres`, database `aniga`, user `aniga`, password from `.env`, default `aniga_dev`).
+Then open [http://localhost:8080](http://localhost:8080).
 
-Init SQL runs only on an empty database volume. After schema changes: `docker compose down -v` and up again.
-
-## Android
-
-```powershell
-copy aniga.local.properties.example aniga.local.properties
-.\gradlew.bat :app:installDebug
-```
-
-## Server deploy
-
-`infra/docker-compose.ec2.yml` publishes only Caddy (ports 80 and 443). Postgres and the API stay on the Docker network. `infra/ec2-deploy.sh` loads a backend image tar if one is present, writes `.env` on first run from variables you export, and starts that Compose file.
-
-A pipeline can wrap the same seam later: test and package `backend/`, publish the image, then run the server Compose with secrets from the host. That workflow is not wired up yet.
+The phone build reads its address from `aniga.local.properties` (there is an example beside it). With nothing set, it looks for the console on the emulator.

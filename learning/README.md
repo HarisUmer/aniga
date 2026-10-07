@@ -1,89 +1,173 @@
-# Aniga — learning notes
+<p align="center">
+  <img src="assets/web-splash.png" alt="The Aniga seal landing over the shelf in the browser" width="100%">
+</p>
 
-This folder explains **what** was built, **how**, and **why**, so every decision can be defended in an interview.
-Read in order; each file stands alone.
+<h1 align="center">A walk through Aniga</h1>
 
-| File | What it covers |
-|------|----------------|
-| [01-worklog.md](01-worklog.md) | Chronological log of what was done in each session |
-| [02-architecture-decisions.md](02-architecture-decisions.md) | Decision records: options considered, choice, trade-offs |
-| [03-database.md](03-database.md) | Local Postgres in Docker, schema design, why each table exists |
-| [04-backend-and-web-console.md](04-backend-and-web-console.md) | Spring Boot API, endpoints, the browser test console |
-| [05-sources-and-scraping.md](05-sources-and-scraping.md) | Source catalog from the extension indexes, adapter pattern, MangaDex, legal boundary |
-| [06-recommender-v1.md](06-recommender-v1.md) | The shipped genre + TF-IDF recommender, the maths, the "Naruto 5 vs AoT 10" example |
-| [07-synthetic-data.md](07-synthetic-data.md) | The simulator that generates bogus-but-structured users and events |
-| [08-design-system.md](08-design-system.md) | "Sumi & Hanko" visual identity: palette, per-type colours, fonts, illustrative animations, reader tones |
-| [09-sources-v2.md](09-sources-v2.md) | Adapters for every readable extension (MangaDex ×61 languages, Pepper&Carrot, xkcd), health check of all 1,778, MangaDex bugs fixed |
-| [10-catalog-anime-library.md](10-catalog-anime-library.md) | 902 real AniList titles, anime metadata (episodes, gallery, cast), shelf status/progress/rating rules |
-| [11-dataset-500k.md](11-dataset-500k.md) | The 500,000-user simulator: hidden personas, completion/drop/score model, statistics |
-| [12-training-report.md](12-training-report.md) | Popularity vs content vs EASE vs two-tower vs blend, cold start, serving, franchise rerank |
-| [13-search.md](13-search.md) | Story search (BM25 + synonyms) and reverse image search (trace.moe + perceptual hash) |
-| [14-knowledge-base-and-roadmap.md](14-knowledge-base-and-roadmap.md) | **Start here:** what exists, where it lives, what is next (chat, auth, embeddings) and how |
-| [15-feedback-learning.md](15-feedback-learning.md) | The recommender adapts: per-user online SGD on rewards (rate, ♥, ✕, open, finish, drop), boost/mute, exploration, simulation results, what the user sees |
-| [16-performance-and-motion.md](16-performance-and-motion.md) | Source caching (single-flight, stale-while-revalidate, rate limiter), find 18 s → 3.8 s, robust cover search, windowed lists, progress on covers, motion research |
-| [research/recommender-research-proposal.md](research/recommender-research-proposal.md) | LSTM + feature MLP + RL trend re-ranker research plan |
-| [interview-defense.md](interview-defense.md) | Likely interview questions with short answers |
+<p align="center">
+  Ink, paper, and a shelf that knows your taste.<br>
+  The same rooms, on a phone and in a browser.
+</p>
 
-![System design](assets/aniga-system-design.jpg)
+---
 
-## Run everything locally
+## It begins with a stamp
 
-Prerequisites: Docker Desktop running, Python 3.10+ (only for the tools/ML scripts). Java is **not** needed on the host; the backend compiles inside Docker.
+<p align="center">
+  <img src="assets/android-splash-sequence.png" alt="The seal drops, the ink spatters, and the word Aniga rises" width="100%">
+</p>
 
-```powershell
-cd infra
-docker compose up -d --build        # postgres :5433, adminer :8081, backend :8080
-```
+<p align="center">
+  A vermilion seal, the kind pressed into the last page of a book.<br>
+  It lands, the ink flies, and the name comes up after.
+</p>
 
-| URL | What |
-|-----|------|
-| http://localhost:8080 | Aniga console: Shelf (continue, for you, per-type rails), For You, Rate, Discover (sources × languages, story search, image search), Library, Sources (health), detail drawer, vertical reader |
-| http://localhost:8080/api/health | API health + row counts |
-| http://localhost:8081 | Adminer (DB web UI). System: PostgreSQL, server `postgres`, user `aniga`, password `aniga_dev`, db `aniga` |
+---
 
-Reset the database (init scripts only run on an empty volume):
+## The shelf is a page
 
-```powershell
-docker compose down -v; docker compose up -d --build
-```
+<p align="center">
+  <img src="assets/android-home.png" alt="Tonight's pull list, composed as a three-panel manga page" width="320">
+</p>
 
-Regenerate data:
+<p align="center">
+  <em>Vol. 01 — Tonight's pull list.</em><br>
+  The hero is a real page: panels, a caption, a burst that says No. 1.<br>
+  Under it, the next titles you would reach for, ranked from what you already loved.
+</p>
 
-```powershell
-python tools/source-ingest/ingest_sources.py        # rebuilds infra/db/init/003_source_catalog.sql
-python ml/synthetic/generate_dataset.py             # writes ml/data/*.csv (git-ignored)
-```
+<p align="center">
+  <img src="assets/web-shelf.png" alt="The same pull list, opened wide in the browser" width="100%">
+</p>
 
-Android emulator → backend: use `http://10.0.2.2:8080` (the emulator's alias for the host machine).
+<p align="center">
+  On a wider screen the page sits beside the invitation: read what you would rate a ten.
+</p>
 
-Build and install the Android app (JDK on `JAVA_HOME`, emulator running):
+---
 
-```powershell
-.\gradlew.bat :app:installDebug
-```
+## Your taste, said out loud
 
-Refresh cover art from AniList (rewrites `infra/db/init/004_media_art.sql`, then reset the DB volume):
+<p align="center">
+  <img src="assets/android-foryou.png" alt="Genre bars and tags showing what pulls this reader in" width="320">
+</p>
 
-```powershell
-python tools/media-sync/fetch_anilist_art.py
-```
+<p align="center">
+  Ranked by what you rated, not by what is trending.<br>
+  Green reaches toward you. Red leans away. The words under the cover are the reason, not a score you have to decode.
+</p>
 
-Catalog, dataset, model, checks (see [14](14-knowledge-base-and-roadmap.md)):
+<p align="center">
+  <img src="assets/android-foryou-list.png" alt="A numbered list of recommendations, each with a one-line reason" width="320">
+</p>
 
-```powershell
-python tools/media-sync/fetch_anilist_catalog.py            # 006_catalog.sql (~900 titles, ~15 min, rate-limited)
-python ml/data/export_catalog.py                            # ml/data/catalog.csv from Postgres
-python ml/synthetic/generate_users_500k.py --users 500000   # ml/data/v2/*.parquet (~50 s)
-python ml/train/train_recommenders.py                       # metrics.json + 007_model_v2.sql (~5 min on GPU)
-python tools/source-ingest/smoke_all_extensions.py          # every readable extension end to end
-node tools/check_console.js                                 # web console: ids exist, script parses
-node tools/e2e_feedback.js                                  # feedback loop against the running API (18 checks)
-node tools/bench_read.js                                    # source latencies (cold / warm / find)
-python ml/eval/simulate_feedback.py                         # feedback-loop simulation → feedback_sim.json + chart
-```
+<p align="center">
+  <img src="assets/web-foryou.png" alt="The same taste chart in the browser, with a reader for each kind of fan" width="100%">
+</p>
 
-Backend unit tests (no host Java needed):
+<p align="center">
+  Kenji likes the dark stuff. Mina likes drama. Each reader keeps their own list.
+</p>
 
-```powershell
-docker run --rm -v "${PWD}\backend:/src" -v aniga-m2:/root/.m2 -w /src maven:3.9-eclipse-temurin-21 mvn -q -B test
-```
+---
+
+## Go find something
+
+<p align="center">
+  <img src="assets/android-discover-idle.png" alt="An empty discover screen, with a small ball waiting for a title" width="320">
+</p>
+
+<p align="center">
+  Type a title. The ball will wait.
+</p>
+
+<p align="center">
+  <img src="assets/android-discover.png" alt="Covers filling the screen after a search for Chainsaw Man" width="320">
+</p>
+
+<p align="center">
+  Then the covers arrive, live, one edition after another.
+</p>
+
+---
+
+## Stay with a story
+
+<p align="center">
+  <img src="assets/android-detail.png" alt="A title page washed in the gold of its own cover" width="320">
+</p>
+
+<p align="center">
+  The page takes its color from the art. Story first. Chapters underneath, ready.
+</p>
+
+<p align="center">
+  <img src="assets/android-detail-chapters.png" alt="A long chapter list with gold numbers" width="320">
+</p>
+
+<p align="center">
+  <img src="assets/web-detail.png" alt="A title sliding in from the side of the browser shelf, with a place to rate it" width="100%">
+</p>
+
+<p align="center">
+  Rate it from one to ten. The shelf listens, and the next list moves.
+</p>
+
+---
+
+## Read
+
+<p align="center">
+  <img src="assets/android-reader-night.png" alt="A chapter scrolling in night ink" width="280">
+  &nbsp;&nbsp;
+  <img src="assets/android-reader-sepia.png" alt="The same chapter in sepia" width="280">
+</p>
+
+<p align="center">
+  Four lights for the page: night ink, sepia, paper, and true black.<br>
+  Pick one. The chapter stays.
+</p>
+
+<p align="center">
+  <img src="assets/android-reader-themes.png" alt="The four reading tones, with night ink selected" width="320">
+</p>
+
+<p align="center">
+  <img src="assets/web-reader-sepia.png" alt="The browser reader in sepia, a paper plane marking how far you have read" width="100%">
+</p>
+
+<p align="center">
+  A small plane flies along the top as you move down the page.<br>
+  At the end of the chapter, a ball rolls to a stop, and the next one is waiting.
+</p>
+
+<p align="center">
+  <img src="assets/android-reader-end.png" alt="End of chapter, with a button to continue" width="320">
+</p>
+
+---
+
+## The notes
+
+The screens above are the pitch. The pages below are the making of them, for anyone who wants the longer story.
+
+| | |
+|---|---|
+| [What happened, in order](01-worklog.md) | A diary of the build |
+| [The choices](02-architecture-decisions.md) | What was picked, and what was left behind |
+| [The shelf's memory](03-database.md) | Where titles, ratings, and progress live |
+| [The console](04-backend-and-web-console.md) | The browser beside the phone |
+| [Where chapters come from](05-sources-and-scraping.md) | The catalogs behind Discover |
+| [The first recommendations](06-recommender-v1.md) | Why one title outranks another |
+| [Imaginary readers](07-synthetic-data.md) | A crowd, invented, so the shelf could be tried |
+| [Ink and paper](08-design-system.md) | The look: seal, type, and motion |
+| [More places to read](09-sources-v2.md) | Languages, editions, and which sources are awake |
+| [A real catalog](10-catalog-anime-library.md) | Titles, art, and the rules of the shelf |
+| [Half a million readers](11-dataset-500k.md) | A larger crowd, still invented |
+| [What the models learned](12-training-report.md) | Which way of recommending won |
+| [Search by story or by picture](13-search.md) | Finding a title you cannot name |
+| [Where things stand](14-knowledge-base-and-roadmap.md) | The map, and what is still ahead |
+| [It keeps learning](15-feedback-learning.md) | Hearts, skips, and a list that moves |
+| [Speed and motion](16-performance-and-motion.md) | A faster find, and movement with a reason |
+| [Questions worth asking](interview-defense.md) | Short answers, if someone presses |
+| [A research sketch](research/recommender-research-proposal.md) | An idea for a later model |
