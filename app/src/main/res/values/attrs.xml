@@ -1,0 +1,8 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="ScreentoneView">
+        <attr name="toneColor" format="color" />
+        <attr name="toneSpacing" format="dimension" />
+        <attr name="denseAtTop" format="boolean" />
+    </declare-styleable>
+</resources>

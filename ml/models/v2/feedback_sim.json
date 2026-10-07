@@ -1,0 +1,295 @@
+{
+ "steady": {
+  "inductive": {
+   "good@10_first5": 0.7277,
+   "good@10_last5": 0.4214,
+   "good@10_mean": 0.5436,
+   "enjoy@10_mean": 0.6034,
+   "clicks_per_round": 1.73,
+   "not_interested_per_round": 0.303,
+   "cumulative_reward": 38.353
+  },
+  "+buttons": {
+   "good@10_first5": 0.7358,
+   "good@10_last5": 0.4512,
+   "good@10_mean": 0.5701,
+   "enjoy@10_mean": 0.6274,
+   "clicks_per_round": 1.827,
+   "not_interested_per_round": 0.168,
+   "cumulative_reward": 40.743
+  },
+  "+online": {
+   "good@10_first5": 0.7421,
+   "good@10_last5": 0.4677,
+   "good@10_mean": 0.5867,
+   "enjoy@10_mean": 0.6292,
+   "clicks_per_round": 1.895,
+   "not_interested_per_round": 0.205,
+   "cumulative_reward": 43.126
+  },
+  "+explore": {
+   "good@10_first5": 0.6911,
+   "good@10_last5": 0.4686,
+   "good@10_mean": 0.5756,
+   "enjoy@10_mean": 0.6189,
+   "clicks_per_round": 1.868,
+   "not_interested_per_round": 0.23,
+   "cumulative_reward": 42.514
+  },
+  "+recency": {
+   "good@10_first5": 0.6897,
+   "good@10_last5": 0.4696,
+   "good@10_mean": 0.5734,
+   "enjoy@10_mean": 0.6178,
+   "clicks_per_round": 1.869,
+   "not_interested_per_round": 0.231,
+   "cumulative_reward": 42.492
+  }
+ },
+ "drift": {
+  "inductive": {
+   "good@10_first5": 0.7277,
+   "good@10_last5": 0.2806,
+   "good@10_mean": 0.4536,
+   "enjoy@10_mean": 0.5285,
+   "clicks_per_round": 1.516,
+   "not_interested_per_round": 0.489,
+   "cumulative_reward": 33.005,
+   "good@10_before_drift": 0.5471,
+   "good@10_right_after": 0.2811,
+   "rounds_to_recover_90pct": null
+  },
+  "+buttons": {
+   "good@10_first5": 0.7358,
+   "good@10_last5": 0.4281,
+   "good@10_mean": 0.5186,
+   "enjoy@10_mean": 0.585,
+   "clicks_per_round": 1.722,
+   "not_interested_per_round": 0.292,
+   "cumulative_reward": 38.313,
+   "good@10_before_drift": 0.5753,
+   "good@10_right_after": 0.3023,
+   "rounds_to_recover_90pct": null
+  },
+  "+online": {
+   "good@10_first5": 0.7421,
+   "good@10_last5": 0.5318,
+   "good@10_mean": 0.5727,
+   "enjoy@10_mean": 0.6157,
+   "clicks_per_round": 1.877,
+   "not_interested_per_round": 0.256,
+   "cumulative_reward": 43.093,
+   "good@10_before_drift": 0.6022,
+   "good@10_right_after": 0.2919,
+   "rounds_to_recover_90pct": null
+  },
+  "+explore": {
+   "good@10_first5": 0.6911,
+   "good@10_last5": 0.5241,
+   "good@10_mean": 0.5541,
+   "enjoy@10_mean": 0.6016,
+   "clicks_per_round": 1.833,
+   "not_interested_per_round": 0.286,
+   "cumulative_reward": 41.974,
+   "good@10_before_drift": 0.5922,
+   "good@10_right_after": 0.2928,
+   "rounds_to_recover_90pct": null
+  },
+  "+recency": {
+   "good@10_first5": 0.6897,
+   "good@10_last5": 0.5427,
+   "good@10_mean": 0.5577,
+   "enjoy@10_mean": 0.6036,
+   "clicks_per_round": 1.843,
+   "not_interested_per_round": 0.283,
+   "cumulative_reward": 42.254,
+   "good@10_before_drift": 0.5904,
+   "good@10_right_after": 0.2997,
+   "rounds_to_recover_90pct": 10
+  }
+ },
+ "sweeps": {
+  "eta": {
+   "0.4": {
+    "good@10_first5": 0.6937,
+    "good@10_last5": 0.5095,
+    "good@10_mean": 0.5509,
+    "enjoy@10_mean": 0.5991,
+    "clicks_per_round": 1.821,
+    "not_interested_per_round": 0.292,
+    "cumulative_reward": 41.6,
+    "good@10_before_drift": 0.61,
+    "good@10_right_after": 0.3048,
+    "rounds_to_recover_90pct": null
+   },
+   "1.2": {
+    "good@10_first5": 0.6948,
+    "good@10_last5": 0.546,
+    "good@10_mean": 0.5673,
+    "enjoy@10_mean": 0.6097,
+    "clicks_per_round": 1.86,
+    "not_interested_per_round": 0.27,
+    "cumulative_reward": 42.848,
+    "good@10_before_drift": 0.6038,
+    "good@10_right_after": 0.2977,
+    "rounds_to_recover_90pct": 10
+   },
+   "2.5": {
+    "good@10_first5": 0.6928,
+    "good@10_last5": 0.5417,
+    "good@10_mean": 0.5618,
+    "enjoy@10_mean": 0.6044,
+    "clicks_per_round": 1.84,
+    "not_interested_per_round": 0.289,
+    "cumulative_reward": 42.333,
+    "good@10_before_drift": 0.5943,
+    "good@10_right_after": 0.2895,
+    "rounds_to_recover_90pct": 10
+   }
+  },
+  "online_w": {
+   "0.4": {
+    "good@10_first5": 0.6925,
+    "good@10_last5": 0.5215,
+    "good@10_mean": 0.5549,
+    "enjoy@10_mean": 0.602,
+    "clicks_per_round": 1.837,
+    "not_interested_per_round": 0.292,
+    "cumulative_reward": 42.107,
+    "good@10_before_drift": 0.6029,
+    "good@10_right_after": 0.2997,
+    "rounds_to_recover_90pct": null
+   },
+   "0.9": {
+    "good@10_first5": 0.6948,
+    "good@10_last5": 0.546,
+    "good@10_mean": 0.5673,
+    "enjoy@10_mean": 0.6097,
+    "clicks_per_round": 1.86,
+    "not_interested_per_round": 0.27,
+    "cumulative_reward": 42.848,
+    "good@10_before_drift": 0.6038,
+    "good@10_right_after": 0.2977,
+    "rounds_to_recover_90pct": 10
+   },
+   "1.6": {
+    "good@10_first5": 0.6918,
+    "good@10_last5": 0.5503,
+    "good@10_mean": 0.565,
+    "enjoy@10_mean": 0.6077,
+    "clicks_per_round": 1.865,
+    "not_interested_per_round": 0.28,
+    "cumulative_reward": 42.947,
+    "good@10_before_drift": 0.5973,
+    "good@10_right_after": 0.2858,
+    "rounds_to_recover_90pct": 9
+   }
+  },
+  "half_life": {
+   "30.0": {
+    "good@10_first5": 0.6922,
+    "good@10_last5": 0.5415,
+    "good@10_mean": 0.5661,
+    "enjoy@10_mean": 0.6093,
+    "clicks_per_round": 1.859,
+    "not_interested_per_round": 0.275,
+    "cumulative_reward": 42.804,
+    "good@10_before_drift": 0.601,
+    "good@10_right_after": 0.3055,
+    "rounds_to_recover_90pct": 10
+   },
+   "60.0": {
+    "good@10_first5": 0.6967,
+    "good@10_last5": 0.5541,
+    "good@10_mean": 0.5676,
+    "enjoy@10_mean": 0.6107,
+    "clicks_per_round": 1.859,
+    "not_interested_per_round": 0.274,
+    "cumulative_reward": 42.814,
+    "good@10_before_drift": 0.6026,
+    "good@10_right_after": 0.3017,
+    "rounds_to_recover_90pct": 9
+   },
+   "120.0": {
+    "good@10_first5": 0.6948,
+    "good@10_last5": 0.546,
+    "good@10_mean": 0.5673,
+    "enjoy@10_mean": 0.6097,
+    "clicks_per_round": 1.86,
+    "not_interested_per_round": 0.27,
+    "cumulative_reward": 42.848,
+    "good@10_before_drift": 0.6038,
+    "good@10_right_after": 0.2977,
+    "rounds_to_recover_90pct": 10
+   },
+   "365.0": {
+    "good@10_first5": 0.6953,
+    "good@10_last5": 0.5338,
+    "good@10_mean": 0.5615,
+    "enjoy@10_mean": 0.6063,
+    "clicks_per_round": 1.855,
+    "not_interested_per_round": 0.279,
+    "cumulative_reward": 42.584,
+    "good@10_before_drift": 0.6045,
+    "good@10_right_after": 0.2992,
+    "rounds_to_recover_90pct": null
+   }
+  },
+  "beta": {
+   "0.0": {
+    "good@10_first5": 0.7527,
+    "good@10_last5": 0.5493,
+    "good@10_mean": 0.5832,
+    "enjoy@10_mean": 0.6225,
+    "clicks_per_round": 1.9,
+    "not_interested_per_round": 0.247,
+    "cumulative_reward": 43.816,
+    "good@10_before_drift": 0.602,
+    "good@10_right_after": 0.3022,
+    "rounds_to_recover_90pct": 8
+   },
+   "0.8": {
+    "good@10_first5": 0.701,
+    "good@10_last5": 0.5461,
+    "good@10_mean": 0.5665,
+    "enjoy@10_mean": 0.6101,
+    "clicks_per_round": 1.867,
+    "not_interested_per_round": 0.269,
+    "cumulative_reward": 42.916,
+    "good@10_before_drift": 0.6019,
+    "good@10_right_after": 0.2958,
+    "rounds_to_recover_90pct": 10
+   },
+   "1.6": {
+    "good@10_first5": 0.6948,
+    "good@10_last5": 0.546,
+    "good@10_mean": 0.5673,
+    "enjoy@10_mean": 0.6097,
+    "clicks_per_round": 1.86,
+    "not_interested_per_round": 0.27,
+    "cumulative_reward": 42.848,
+    "good@10_before_drift": 0.6038,
+    "good@10_right_after": 0.2977,
+    "rounds_to_recover_90pct": 10
+   },
+   "3.0": {
+    "good@10_first5": 0.6924,
+    "good@10_last5": 0.5468,
+    "good@10_mean": 0.5633,
+    "enjoy@10_mean": 0.606,
+    "clicks_per_round": 1.84,
+    "not_interested_per_round": 0.282,
+    "cumulative_reward": 42.289,
+    "good@10_before_drift": 0.6003,
+    "good@10_right_after": 0.2952,
+    "rounds_to_recover_90pct": 10
+   }
+  }
+ },
+ "config": {
+  "users": 1500,
+  "rounds": 30,
+  "days_per_round": 7,
+  "seconds": 179.8
+ }
+}

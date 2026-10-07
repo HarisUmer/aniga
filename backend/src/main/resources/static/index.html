@@ -1,0 +1,171 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<!-- MangaDex image hosts reject cross-site referrers; sending none keeps covers and pages loading. -->
+<meta name="referrer" content="no-referrer">
+<title>Aniga — console</title>
+<link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 32 32'%3E%3Crect x='7' y='2' width='18' height='28' rx='4' fill='%23E5532D' transform='rotate(-6 16 16)'/%3E%3C/svg%3E">
+<link rel="stylesheet" href="console.css">
+
+</head>
+<body>
+
+<div id="splash">
+  <div class="tone"></div>
+  <div style="display:grid;justify-items:center">
+    <div class="seal"><span class="splat"></span><span class="splat"></span><span class="splat"></span><span class="splat"></span><span>ア</span><span>ニ</span><span>ガ</span></div>
+    <div class="word"><h1 class="display">Aniga</h1><div class="kicker">anime · manga · manhwa · manhua</div></div>
+  </div>
+</div>
+<canvas id="sakura" aria-hidden="true"></canvas>
+<canvas id="sakuraFront" aria-hidden="true"></canvas>
+<div id="toast" role="status" aria-live="polite"></div>
+
+<header>
+  <div class="tone"></div>
+  <div class="seigaiha"></div>
+  <div class="kanji-bg" id="kanjiBg">棚</div>
+  <div class="wrap">
+    <div class="brand">
+      <div class="kicker">Vol. 01 — local test console</div>
+      <h1 class="display">Aniga<span class="kana">アニガ</span></h1>
+    </div>
+    <div id="health" class="kicker">checking backend…</div>
+  </div>
+</header>
+
+<nav><div class="wrap">
+  <button data-tab="shelf" data-kj="棚" class="on"><span class="kj">棚</span>Shelf</button>
+  <button data-tab="foryou" data-kj="推"><span class="kj">推</span>For you</button>
+  <button data-tab="catalog" data-kj="評"><span class="kj">評</span>Rate</button>
+  <button data-tab="read" data-kj="探"><span class="kj">探</span>Discover</button>
+  <button data-tab="library" data-kj="帳"><span class="kj">帳</span>Library</button>
+  <button data-tab="sources" data-kj="源"><span class="kj">源</span>Sources</button>
+  <span id="navInk"></span>
+</div></nav>
+
+<main class="wrap">
+  <section id="shelf" class="on">
+    <div class="hero">
+      <div class="page" id="heroPage"></div>
+      <div class="hero-side">
+        <div class="kicker" id="heroKicker">Tonight's pull list</div>
+        <h2 class="display">Read what<br>you'd rate <span style="color:var(--hanko)">10</span></h2>
+        <p>Every rail below is the same catalog the Android app shows. The page on the left is the top three picks for the selected reader, laid out like an actual manga page.</p>
+      </div>
+    </div>
+    <div id="rails"></div>
+  </section>
+
+  <section id="foryou">
+    <div class="head">
+      <div><div class="kicker">Ranked by what you rated, not by what's trending</div><h2 class="display">For you</h2></div>
+      <div class="right" style="display:flex;gap:8px">
+        <input class="field" id="newUser" placeholder="new username" size="14">
+        <button class="btn ghost" id="newUserBtn">Add reader</button>
+      </div>
+    </div>
+    <div id="users"></div>
+    <div id="typeFilter" style="margin-top:4px"></div>
+    <div class="taste card" style="margin-top:14px">
+      <div class="bars">
+        <div style="display:flex;align-items:baseline;gap:10px"><h3 class="display" style="font-size:24px">What we think you like</h3><span class="kicker" id="tasteMeta" style="margin-left:auto;text-align:right"></span></div>
+        <div class="ktabs" id="kindTabs"></div>
+        <div class="tlegend"><span><i></i>from your ratings &amp; shelf</span><span><i class="on"></i>learned from feedback</span><span>▲ more · ▼ never</span></div>
+        <div id="bars"></div>
+      </div>
+      <div>
+        <div style="display:flex;align-items:baseline"><div class="kicker">How your taste moved</div>
+          <button class="btn ghost" id="resetOnline" style="margin-left:auto;padding:5px 10px;font-size:10.5px">Reset learned</button></div>
+        <div id="changes" style="margin-top:6px"></div>
+        <div class="kicker" style="margin-top:16px">Your reactions · click to undo</div><div id="fbList" style="margin-top:8px"></div>
+      </div>
+    </div>
+    <h3 class="display" style="font-size:30px;margin-top:34px">The list</h3>
+    <div id="recs"></div>
+  </section>
+
+  <section id="catalog">
+    <div class="head">
+      <div><div class="kicker">Ratings save for the reader picked on For you</div><h2 class="display">Rate</h2></div>
+      <div class="right" style="display:flex;gap:8px">
+        <input class="field" id="mediaQ" placeholder="search title" size="18">
+        <button class="btn" id="mediaBtn">Search</button>
+      </div>
+    </div>
+    <div id="catalogTypes"></div>
+    <div id="catalogGrid" style="display:grid;grid-template-columns:repeat(auto-fill,minmax(150px,1fr));gap:22px 16px;margin-top:14px"></div>
+  </section>
+
+  <section id="read">
+    <div class="head">
+      <div><div class="kicker">探 · sources · story · image</div><h2 class="display">Discover</h2></div>
+      <div class="right modes" id="dModes"><button data-m="title" class="on">Title</button><button data-m="story">Story</button><button data-m="image">Image</button></div>
+    </div>
+    <div id="dTitleBar" style="display:flex;gap:8px;flex-wrap:wrap;align-items:center">
+      <div id="dSources"></div>
+      <select class="field" id="dLang" title="chapter language"></select>
+      <input class="field" id="dQ" placeholder="search this source by title (empty = popular)" size="34">
+      <button class="btn" id="dBtn">Go</button>
+    </div>
+    <div id="dStoryBar" style="display:none;gap:8px">
+      <input class="field" id="sQ" placeholder='describe it: "boy reborn as the villain in a novel"' style="flex:1">
+      <button class="btn" id="sBtn">Search story</button>
+    </div>
+    <div id="dImageBar" style="display:none">
+      <label class="dz" id="dz"><input type="file" id="imgFile" accept="image/*" hidden>
+        <div class="display" style="font-size:26px">Drop a screenshot or a cover</div>
+        <div class="kicker" style="margin-top:6px">anime scene → trace.moe · cover → perceptual hash over 900 covers</div></label>
+    </div>
+    <div class="note" id="dNote"></div>
+    <div id="dOut"></div>
+  </section>
+
+  <section id="library">
+    <div class="head">
+      <div><div class="kicker">帳 · your record</div><h2 class="display">Library</h2><div class="kicker" id="libStats" style="margin-top:4px"></div></div>
+    </div>
+    <div id="libFilters"></div>
+    <div id="libOut"></div>
+  </section>
+
+  <section id="sources">
+    <div class="head"><div><div class="kicker">Public extension indexes · health · readable adapters</div><h2 class="display">Sources</h2></div>
+      <div class="right"><button class="btn ghost" id="healthBtn">Run health check</button></div></div>
+    <div id="srcStats" style="margin-bottom:18px"></div>
+    <div id="healthStats" style="margin-bottom:12px" class="note"></div>
+    <div id="adapters" style="margin-bottom:16px"></div>
+    <div style="display:flex;gap:8px;flex-wrap:wrap;margin-bottom:12px">
+      <input class="field" id="srcQ" placeholder="name or domain">
+      <select class="field" id="srcHint"><option value="">Any content</option><option>MANGA</option><option>MANHWA</option><option>MANHUA</option><option>MIXED</option></select>
+      <select class="field" id="srcStatus"><option value="">Any health</option><option>UP</option><option>MOVED</option><option>BLOCKED</option><option>DOWN</option></select>
+      <label class="kicker" style="display:flex;align-items:center;gap:6px"><input type="checkbox" id="srcReadable"> readable in Aniga</label>
+      <input class="field" id="srcLang" placeholder="lang (en, ko…)" size="10">
+      <button class="btn" id="srcBtn">Filter</button>
+    </div>
+    <table><thead><tr><th>Name</th><th>Lang</th><th>Hint</th><th>Health</th><th>Home URL</th><th>In Aniga</th></tr></thead><tbody id="srcBody"></tbody></table>
+    <div style="display:flex;gap:12px;align-items:center;margin-top:14px"><button class="btn ghost" id="srcPrev">Prev</button><span id="srcPage" class="kicker"></span><button class="btn ghost" id="srcNext">Next</button></div>
+  </section>
+</main>
+
+<div id="detail"><div class="scrim"></div><div class="sheet" id="sheet"></div></div>
+
+<div id="reader" data-tone="night">
+  <div class="rchrome" id="rchrome">
+    <div class="bar">
+      <button class="rbtn" id="rClose">← Back</button>
+      <div class="ttl"><b id="rTitle"></b><span id="rSub"></span></div>
+      <div class="tones" id="tones"></div>
+    </div>
+    <svg class="flight" id="flight" viewBox="0 0 900 22" preserveAspectRatio="none"></svg>
+    <div class="bar" style="padding-top:0"><button class="rbtn" id="rPrev">‹ Prev</button><span class="mono" id="rPage" style="flex:1;text-align:center;font-size:12px;opacity:.6"></span><button class="rbtn" id="rNext">Next chapter ›</button></div>
+  </div>
+  <div class="pages" id="rPages"></div>
+  <div id="rEnd"></div>
+</div>
+
+<script src="js/console.js"></script>
+</body>
+</html>

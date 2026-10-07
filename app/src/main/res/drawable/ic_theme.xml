@@ -1,0 +1,14 @@
+<vector xmlns:android="http://schemas.android.com/apk/res/android"
+    android:width="24dp"
+    android:height="24dp"
+    android:viewportWidth="24"
+    android:viewportHeight="24">
+    <!-- Half-inked circle: "page tone". -->
+    <path
+        android:pathData="M4,12 A8,8 0 1,0 20,12 A8,8 0 1,0 4,12 Z"
+        android:strokeWidth="1.7"
+        android:strokeColor="#FFFFFFFF" />
+    <path
+        android:fillColor="#FFFFFFFF"
+        android:pathData="M12,4 A8,8 0 0,1 12,20 Z" />
+</vector>

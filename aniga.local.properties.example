@@ -1,0 +1,8 @@
+# Copy to aniga.local.properties. That file is not committed.
+# Trailing slash is added by the build if you omit it.
+#
+# Emulator, backend on this machine:
+aniga.apiBaseUrl=http://10.0.2.2:8080/
+#
+# A deployed backend over HTTPS:
+# aniga.apiBaseUrl=https://your.host.example/

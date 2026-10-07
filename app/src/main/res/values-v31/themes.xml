@@ -1,0 +1,9 @@
+<resources>
+    <!-- Android 12+ always shows a system splash first; make it the bare ink page so the
+         stamp animation in SplashActivity is the first thing with content. -->
+    <style name="Theme.Aniga.Splash">
+        <item name="android:windowBackground">@color/ink_950</item>
+        <item name="android:windowSplashScreenBackground">@color/ink_950</item>
+        <item name="android:windowSplashScreenAnimatedIcon">@android:color/transparent</item>
+    </style>
+</resources>

@@ -1,0 +1,153 @@
+<resources>
+    <string name="app_name">Aniga</string>
+    <string name="wordmark">ANIGA</string>
+    <string name="wordmark_kana">アニガ</string>
+    <string name="tagline">anime · manga · manhwa · manhua</string>
+
+    <string name="nav_home">Shelf</string>
+    <string name="nav_foryou">For you</string>
+    <string name="nav_discover">Discover</string>
+    <string name="nav_library">Library</string>
+    <string name="nav_people">Circle</string>
+
+    <string name="home_picks">For you</string>
+    <string name="home_picks_sub">Ranked from %1$s\'s shelf and ratings</string>
+    <string name="home_picks_because">Because you loved %1$s</string>
+    <string name="home_continue">Continue</string>
+    <string name="home_continue_sub">Pick up where you left off</string>
+
+    <string name="shelf_status">Status</string>
+    <string name="shelf_score">Your score</string>
+    <string name="shelf_score_clear">%1$d / 10 · clear</string>
+    <string name="shelf_score_none">not rated</string>
+    <string name="shelf_save_failed">Couldn\'t save — is the backend running?</string>
+    <string name="rate">Rate</string>
+
+    <string name="library_kicker">帳 · your record</string>
+    <string name="library_title">Library</string>
+    <string name="library_all">All</string>
+    <string name="library_empty">Nothing on your shelf yet. Open any title and pick a status.</string>
+    <string name="library_empty_filter">Nothing here with this status.</string>
+
+    <string name="mode_title">Title</string>
+    <string name="mode_story">Story</string>
+    <string name="mode_image">Image</string>
+    <string name="discover_hint_story">Describe it: \"boy reborn as the villain\"…</string>
+    <string name="discover_hint_image">Tap to pick a screenshot or a cover</string>
+    <string name="discover_idle_story">Describe a plot, a character or a vibe.\nWe search synopses, tags and casts.</string>
+    <string name="discover_idle_image">Pick an anime screenshot to find the episode,\nor a cover to find the title.</string>
+    <string name="discover_language">Chapter language</string>
+    <string name="source_catalog">Catalog</string>
+    <string name="note_catalog">Aniga catalog · 900 AniList titles · most popular first</string>
+    <string name="note_popular">%1$s · %2$s · series with chapters in this language</string>
+    <string name="note_story">%1$d matches · badge = words that matched</string>
+    <string name="note_scene">Scene: %1$s · %2$s · %3$d%% similar (trace.moe)</string>
+    <string name="note_scene_error">Scene search unavailable · showing cover matches</string>
+    <string name="note_covers">Cover matches by perceptual hash · %1$d covers indexed</string>
+    <string name="image_unreadable">Couldn\'t read that image.</string>
+    <string name="loading_sources">Opening the sources…</string>
+    <string name="loading_story">Reading every synopsis…</string>
+    <string name="loading_image">Looking closely…</string>
+
+    <string name="detail_shelf">Your shelf</string>
+    <string name="detail_gallery">Stills · banner · trailer</string>
+    <string name="detail_cast">Cast</string>
+    <string name="detail_similar">More like this</string>
+    <string name="detail_episodes">Episodes</string>
+    <string name="detail_episode_hint">tap = watched up to here</string>
+    <string name="detail_no_synopsis">No synopsis yet.</string>
+    <string name="anime_note_short">METADATA ONLY</string>
+    <string name="empty_chapters_lang">No chapters in %1$s on the reading sources. Try another language in Discover.</string>
+    <string name="reader_saved">Chapter %1$s saved to your shelf</string>
+
+    <string name="home_kicker">Vol. 01 — tonight\'s pull list</string>
+    <string name="home_hero_caption">Picked for %1$s</string>
+    <string name="foryou_title">For you</string>
+    <string name="foryou_kicker">Ranked by what you rated, not by what\'s trending</string>
+    <string name="foryou_taste">Genre pull</string>
+    <string name="foryou_liked">Pulls you in</string>
+    <string name="foryou_disliked">Pushes you away</string>
+    <string name="foryou_picks">The list</string>
+    <string name="foryou_model">What the model thinks you like</string>
+    <string name="foryou_model_meta">%1$d signals · %2$d reactions</string>
+    <string name="foryou_model_hint">Tap a row to boost it, tap again to mute, once more to clear. Ratings and the buttons on each pick move these bars.</string>
+    <string name="foryou_changes">Lately it learned</string>
+    <string name="foryou_reset">Forget reactions</string>
+    <string name="foryou_reset_done">Online learning reset — back to your ratings only</string>
+    <string name="rec_explore">Exploring</string>
+    <string name="rec_like">♥ More like this</string>
+    <string name="rec_liked">♥ Liked</string>
+    <string name="rec_nope">✕ Not for me</string>
+    <string name="rec_noped">Hidden — the model will lean away from this</string>
+    <string name="rec_undo">Undo</string>
+    <string name="discover_title">Discover</string>
+    <string name="discover_kicker">探 · sources · story · image</string>
+    <string name="discover_hint">Search manga, manhwa, manhua…</string>
+    <string name="discover_idle">Type a title. The ball will wait.</string>
+
+    <string name="loading_shelf">Folding the shelf…</string>
+    <string name="loading_list">Ranking your list…</string>
+    <string name="loading_search">Flying to MangaDex…</string>
+    <string name="loading_chapters">Fetching chapters…</string>
+    <string name="loading_pages">Loading pages…</string>
+    <string name="error_backend">Can\'t reach the Aniga backend.\nIs Docker running?</string>
+    <string name="error_generic">Something tore. Try again.</string>
+    <string name="empty_search">Nothing found. The ball rolled past.</string>
+    <string name="empty_chapters">No English chapters on MangaDex yet.</string>
+    <string name="anime_note">Anime is metadata only in Aniga — no streaming.</string>
+    <string name="retry">Try again</string>
+
+    <string name="detail_chapters">Chapters</string>
+    <string name="detail_story">Story</string>
+    <string name="reader_end">End of chapter %1$s</string>
+    <string name="reader_next">Next chapter</string>
+    <string name="reader_prev">Prev</string>
+    <string name="reader_theme">Page tone</string>
+    <string name="reader_last">You\'re caught up.</string>
+    <string name="back">Back</string>
+
+    <string name="sign_in_kicker">帳 · Firebase</string>
+    <string name="sign_in_title">Sign in</string>
+    <string name="sign_in_body">Your shelf stays in Postgres. Firebase only checks who you are.</string>
+    <string name="sign_in_email">Email</string>
+    <string name="sign_in_password">Password</string>
+    <string name="sign_in_enter">Enter</string>
+    <string name="sign_in_create">Create account</string>
+    <string name="sign_in_out">Sign out</string>
+    <string name="sign_in_failed">Couldn\'t sign in.</string>
+    <string name="sign_in_backend">Firebase accepted you, but the backend did not open a session. Is Docker running?</string>
+    <string name="sign_in_disabled">Firebase Authentication is not turned on yet. In the Firebase console open Authentication, click Get started, then enable Email/Password.</string>
+    <string name="sign_in_short">Use an email and a password of at least 6 characters.</string>
+    <string name="report_broken">Report broken chapter</string>
+    <string name="report_sent">Report sent. Thank you.</string>
+    <string name="report_failed">Couldn\'t send the report.</string>
+
+    <string name="people_kicker">縁 · your circle</string>
+    <string name="people_title">Circle</string>
+    <string name="people_type">Your reading type</string>
+    <string name="people_add_hint">Add a friend by username</string>
+    <string name="people_add">Add</string>
+    <string name="people_global">Open the global room</string>
+    <string name="people_global_title">Global room</string>
+    <string name="people_requests">Requests</string>
+    <string name="people_friends">Friends</string>
+    <string name="people_matches">Readers like you</string>
+    <string name="people_accept">Accept</string>
+    <string name="people_decline">Decline</string>
+    <string name="people_chat">Chat</string>
+    <string name="people_shelf">Shelf</string>
+    <string name="people_shared">You both rate %1$s</string>
+    <string name="people_their_picks">Try: %1$s</string>
+    <string name="people_affinity">%1$d shared · match %2$s</string>
+    <string name="people_empty_friends">No friends yet. Add someone by their username above.</string>
+    <string name="people_empty_matches">Rate a few titles and we\'ll find readers who share your taste.</string>
+    <string name="people_added">Request sent.</string>
+    <string name="people_now_friends">You\'re now friends.</string>
+    <string name="people_request_failed">Couldn\'t do that. Check the username.</string>
+    <string name="people_shelf_empty">Nothing on their shelf yet.</string>
+    <string name="loading_people">Gathering your circle…</string>
+
+    <string name="chat_hint">Message… use @name to mention</string>
+    <string name="chat_send">Send</string>
+    <string name="chat_empty">No messages yet. Say hello.</string>
+</resources>

@@ -1,0 +1,10 @@
+{
+	# Self-signed internal CA. The Android app ships this CA and trusts it only for this host,
+	# so the phone talks to our API over TLS that we pin. No external certificate authority is involved.
+	local_certs
+}
+
+{$ANIGA_SITE_ADDRESS:localhost} {
+	encode zstd gzip
+	reverse_proxy backend:8080
+}

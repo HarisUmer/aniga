@@ -1,0 +1,57 @@
+<resources xmlns:tools="http://schemas.android.com/tools">
+
+    <style name="Base.Theme.Aniga" parent="Theme.Material3.Dark.NoActionBar">
+        <item name="colorPrimary">@color/hanko</item>
+        <item name="colorOnPrimary">@color/paper_100</item>
+        <item name="colorPrimaryContainer">@color/hanko_deep</item>
+        <item name="colorOnPrimaryContainer">@color/paper_100</item>
+        <item name="colorSecondary">@color/yamabuki</item>
+        <item name="colorOnSecondary">@color/ink_900</item>
+        <item name="colorSurface">@color/ink_900</item>
+        <item name="colorOnSurface">@color/paper_100</item>
+        <item name="colorOnSurfaceVariant">@color/paper_300</item>
+        <item name="colorSurfaceContainer">@color/ink_800</item>
+        <item name="colorSurfaceContainerHigh">@color/ink_700</item>
+        <item name="colorOutline">@color/ink_600</item>
+        <item name="colorOutlineVariant">@color/ink_600</item>
+        <item name="android:colorBackground">@color/ink_900</item>
+        <item name="android:windowBackground">@color/ink_900</item>
+        <item name="android:textColorPrimary">@color/paper_100</item>
+        <item name="android:textColorSecondary">@color/paper_300</item>
+        <!-- Fonts come only from text appearances: a theme-level fontFamily would beat every
+             TextAppearance and flatten Anton display type back to body text. -->
+        <item name="android:textViewStyle">@style/Widget.Aniga.TextView</item>
+        <item name="textAppearanceBodyLarge">@style/TextAppearance.Aniga.Body</item>
+        <item name="textAppearanceBodyMedium">@style/TextAppearance.Aniga.Body</item>
+        <item name="textAppearanceLabelLarge">@style/TextAppearance.Aniga.Label</item>
+        <item name="textAppearanceTitleMedium">@style/TextAppearance.Aniga.Title</item>
+        <item name="android:statusBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <item name="android:navigationBarColor" tools:targetApi="l">@android:color/transparent</item>
+        <item name="android:windowLightStatusBar" tools:targetApi="m">false</item>
+        <item name="chipStyle">@style/Widget.Aniga.Chip</item>
+    </style>
+
+    <style name="Theme.Aniga" parent="Base.Theme.Aniga" />
+
+    <style name="Theme.Aniga.Splash">
+        <item name="android:windowBackground">@color/ink_950</item>
+    </style>
+
+    <style name="Theme.Aniga.Reader">
+        <item name="android:windowBackground">@color/reader_night_bg</item>
+    </style>
+
+    <style name="Widget.Aniga.TextView" parent="android:Widget.TextView">
+        <item name="android:textAppearance">@style/TextAppearance.Aniga.Body</item>
+    </style>
+
+    <style name="Widget.Aniga.Chip" parent="Widget.Material3.Chip.Filter">
+        <item name="chipBackgroundColor">@color/chip_bg</item>
+        <item name="chipStrokeColor">@color/chip_stroke</item>
+        <item name="chipStrokeWidth">1dp</item>
+        <item name="android:textColor">@color/chip_text</item>
+        <item name="chipCornerRadius">2dp</item>
+        <item name="checkedIconVisible">false</item>
+        <item name="android:textAppearance">@style/TextAppearance.Aniga.Label</item>
+    </style>
+</resources>

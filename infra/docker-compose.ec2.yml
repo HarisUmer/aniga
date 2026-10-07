@@ -1,0 +1,60 @@
+name: aniga
+
+# Production-ish stack for the EC2 box. Only Caddy is published (80/443).
+# Postgres and the backend are reachable only on the private Docker network.
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: aniga-postgres
+    restart: unless-stopped
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aniga}
+      POSTGRES_USER: ${POSTGRES_USER:-aniga}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+    volumes:
+      - aniga-pgdata:/var/lib/postgresql/data
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aniga} -d ${POSTGRES_DB:-aniga}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  backend:
+    image: aniga-backend:latest
+    container_name: aniga-backend
+    restart: unless-stopped
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-aniga}
+      DB_USER: ${POSTGRES_USER:-aniga}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:?set in .env}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:?set in .env}
+      FIREBASE_API_KEY: ${FIREBASE_API_KEY:?set in .env}
+      ANIGA_SESSION_SECRET: ${ANIGA_SESSION_SECRET:?set in .env}
+      ANIGA_ADMIN_TOKEN: ${ANIGA_ADMIN_TOKEN:?set in .env}
+      # Keep the heap small; this box has ~900 MB RAM plus swap.
+      JAVA_TOOL_OPTIONS: "-Xmx384m -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  caddy:
+    image: caddy:2-alpine
+    container_name: aniga-caddy
+    restart: unless-stopped
+    ports:
+      - "80:80"
+      - "443:443"
+    environment:
+      ANIGA_SITE_ADDRESS: ${ANIGA_SITE_ADDRESS:?set in .env}
+    volumes:
+      - ./Caddyfile:/etc/caddy/Caddyfile:ro
+      - caddy-data:/data
+      - caddy-config:/config
+    depends_on:
+      - backend
+
+volumes:
+  aniga-pgdata:
+  caddy-data:
+  caddy-config:

@@ -1,0 +1,47 @@
+<?xml version="1.0" encoding="utf-8"?>
+<FrameLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ink_950">
+
+    <com.example.aniga.ui.widget.ScreentoneView
+        android:layout_width="match_parent"
+        android:layout_height="320dp"
+        android:layout_gravity="bottom"
+        app:toneColor="#26E5532D"
+        app:toneSpacing="9dp" />
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_gravity="center"
+        android:gravity="center_horizontal"
+        android:orientation="vertical">
+
+        <com.example.aniga.ui.widget.HankoStampView
+            android:id="@+id/stamp"
+            android:layout_width="200dp"
+            android:layout_height="220dp" />
+
+        <TextView
+            android:id="@+id/wordmark"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="20dp"
+            android:alpha="0"
+            android:letterSpacing="0.28"
+            android:text="@string/wordmark"
+            android:textAppearance="@style/TextAppearance.Aniga.Display"
+            android:textSize="44sp" />
+
+        <TextView
+            android:id="@+id/tagline"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginTop="6dp"
+            android:alpha="0"
+            android:text="@string/tagline"
+            android:textAppearance="@style/TextAppearance.Aniga.Kicker" />
+    </LinearLayout>
+</FrameLayout>

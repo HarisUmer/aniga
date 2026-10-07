@@ -1,0 +1,42 @@
+spring:
+  application:
+    name: aniga-backend
+  datasource:
+    url: ${DB_URL:jdbc:postgresql://localhost:5433/aniga}
+    username: ${DB_USER:aniga}
+    password: ${DB_PASSWORD:aniga_dev}
+  servlet:
+    multipart:
+      max-file-size: 8MB
+      max-request-size: 9MB
+  threads:
+    virtual:
+      enabled: true
+  web:
+    resources:
+      cache:
+        cachecontrol:
+          max-age: 60s
+          cache-public: true
+
+server:
+  port: 8080
+  compression:
+    enabled: true
+    min-response-size: 1KB
+    mime-types: application/json,text/html,text/css,application/javascript,image/svg+xml
+
+aniga:
+  firebase:
+    # Set in the environment. See infra/.env.example. Do not put a real key in this file.
+    project-id: ${FIREBASE_PROJECT_ID:}
+    api-key: ${FIREBASE_API_KEY:}
+  session:
+    # Signs our own session tokens. Local compose supplies a dev-only value; production must set its own.
+    secret: ${ANIGA_SESSION_SECRET:}
+  admin:
+    # When set, POST /api/users, model reload, and health runs require this value in X-Admin-Token.
+    token: ${ANIGA_ADMIN_TOKEN:}
+  mangadex:
+    base-url: https://api.mangadex.org
+    user-agent: Aniga/0.1 (practice project)

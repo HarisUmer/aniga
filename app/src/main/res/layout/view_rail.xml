@@ -1,0 +1,64 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:orientation="vertical"
+    android:paddingTop="18dp">
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:gravity="center_vertical"
+        android:orientation="horizontal"
+        android:paddingHorizontal="20dp">
+
+        <View
+            android:id="@+id/rail_bar"
+            android:layout_width="4dp"
+            android:layout_height="22dp"
+            android:layout_marginEnd="10dp" />
+
+        <TextView
+            android:id="@+id/rail_index"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_marginEnd="8dp"
+            android:textAppearance="@style/TextAppearance.Aniga.Kicker" />
+
+        <TextView
+            android:id="@+id/rail_title"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            android:ellipsize="end"
+            android:maxLines="1"
+            android:textAppearance="@style/TextAppearance.Aniga.Headline"
+            android:textSize="22sp" />
+
+        <TextView
+            android:id="@+id/rail_count"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:textAppearance="@style/TextAppearance.Aniga.Meta" />
+    </LinearLayout>
+
+    <TextView
+        android:id="@+id/rail_sub"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="2dp"
+        android:paddingStart="34dp"
+        android:paddingEnd="20dp"
+        android:textAppearance="@style/TextAppearance.Aniga.Body"
+        android:textSize="12sp" />
+
+    <androidx.recyclerview.widget.RecyclerView
+        android:id="@+id/rail_list"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:clipToPadding="false"
+        android:layoutAnimation="@anim/layout_rise"
+        android:nestedScrollingEnabled="false"
+        android:paddingHorizontal="20dp" />
+</LinearLayout>

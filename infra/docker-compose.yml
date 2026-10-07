@@ -1,0 +1,54 @@
+name: aniga
+
+services:
+  postgres:
+    image: postgres:17-alpine
+    container_name: aniga-postgres
+    environment:
+      POSTGRES_DB: ${POSTGRES_DB:-aniga}
+      POSTGRES_USER: ${POSTGRES_USER:-aniga}
+      POSTGRES_PASSWORD: ${POSTGRES_PASSWORD:-aniga_dev}
+    ports:
+      - "${POSTGRES_HOST_PORT:-5433}:5432"
+    volumes:
+      - aniga-pgdata:/var/lib/postgresql/data
+      # Scripts here only run on an EMPTY volume. After schema changes: docker compose down -v
+      - ./db/init:/docker-entrypoint-initdb.d:ro
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aniga} -d ${POSTGRES_DB:-aniga}"]
+      interval: 5s
+      timeout: 3s
+      retries: 20
+
+  adminer:
+    image: adminer:latest
+    container_name: aniga-adminer
+    ports:
+      - "${ADMINER_HOST_PORT:-8081}:8080"
+    environment:
+      ADMINER_DEFAULT_SERVER: postgres
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+  backend:
+    build:
+      context: ../backend
+    container_name: aniga-backend
+    environment:
+      DB_URL: jdbc:postgresql://postgres:5432/${POSTGRES_DB:-aniga}
+      DB_USER: ${POSTGRES_USER:-aniga}
+      DB_PASSWORD: ${POSTGRES_PASSWORD:-aniga_dev}
+      FIREBASE_PROJECT_ID: ${FIREBASE_PROJECT_ID:-}
+      FIREBASE_API_KEY: ${FIREBASE_API_KEY:-}
+      # Local default only. Production compose refuses to start without a secret from .env.
+      ANIGA_SESSION_SECRET: ${ANIGA_SESSION_SECRET:-dev-insecure-session-secret-change-me-0123456789}
+      ANIGA_ADMIN_TOKEN: ${ANIGA_ADMIN_TOKEN:-}
+    ports:
+      - "${BACKEND_HOST_PORT:-8080}:8080"
+    depends_on:
+      postgres:
+        condition: service_healthy
+
+volumes:
+  aniga-pgdata:

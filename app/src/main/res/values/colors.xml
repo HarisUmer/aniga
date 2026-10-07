@@ -1,0 +1,63 @@
+<?xml version="1.0" encoding="utf-8"?>
+<!-- "Sumi & Hanko" palette. Warm ink instead of neutral grey, cream paper instead of white,
+     one seal-red accent. See learning/08-design-system.md for contrast notes. -->
+<resources>
+    <color name="ink_950">#FF0E0C0A</color>
+    <color name="ink_900">#FF15120F</color>
+    <color name="ink_800">#FF1E1A16</color>
+    <color name="ink_700">#FF29231E</color>
+    <color name="ink_600">#FF3B332C</color>
+
+    <color name="paper_100">#FFF1E9DA</color>
+    <color name="paper_200">#FFE4D9C5</color>
+    <color name="paper_300">#FFB9AD9A</color>
+    <color name="paper_500">#FF85796A</color>
+
+    <color name="hanko">#FFE5532D</color>
+    <color name="hanko_deep">#FFB93B1C</color>
+    <color name="hanko_wash">#2EE5532D</color>
+    <color name="yamabuki">#FFEFB23B</color>
+
+    <!-- One colour per media type, used for pips, rails and chapter numbers. -->
+    <color name="type_anime">#FF7C9CE0</color>
+    <color name="type_manga">#FFE5532D</color>
+    <color name="type_manhwa">#FF4DB38A</color>
+    <color name="type_manhua">#FFEFB23B</color>
+    <color name="type_webcomic">#FFE88FA6</color>
+
+    <!-- 伝統色 traditional colours used for motifs (petals, waves, library states). -->
+    <color name="sakura">#FFF2A7B8</color>
+    <color name="ai">#FF3D6A9E</color>
+    <color name="matcha">#FF9BB067</color>
+    <color name="fuji">#FFA88BC7</color>
+    <color name="kincha">#FFC98A2E</color>
+
+    <!-- Library status colours -->
+    <color name="status_current">#FF4DB38A</color>
+    <color name="status_completed">#FF7C9CE0</color>
+    <color name="status_planning">#FFB9AD9A</color>
+    <color name="status_paused">#FFEFB23B</color>
+    <color name="status_dropped">#FFE5532D</color>
+
+    <color name="taste_like">#FF4DB38A</color>
+    <color name="taste_dislike">#FFE5532D</color>
+
+    <!-- Reader themes -->
+    <color name="reader_night_bg">#FF0E0C0A</color>
+    <color name="reader_night_chrome">#F81A1613</color>
+    <color name="reader_night_text">#FFE9E1D2</color>
+    <color name="reader_sepia_bg">#FFEDE0C4</color>
+    <color name="reader_sepia_chrome">#F8E2D2B0</color>
+    <color name="reader_sepia_text">#FF4A3F33</color>
+    <color name="reader_paper_bg">#FFF6F1E7</color>
+    <color name="reader_paper_chrome">#F8ECE4D4</color>
+    <color name="reader_paper_text">#FF221C17</color>
+    <color name="reader_oled_bg">#FF000000</color>
+    <color name="reader_oled_chrome">#F80C0C0C</color>
+    <color name="reader_oled_text">#FFD8D2C8</color>
+
+    <color name="black">#FF000000</color>
+    <color name="white">#FFFFFFFF</color>
+
+    <color name="nav_item_checked">@color/hanko</color>
+</resources>

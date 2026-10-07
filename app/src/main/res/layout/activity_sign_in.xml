@@ -1,0 +1,104 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:background="@color/ink_950"
+    android:gravity="center_horizontal"
+    android:orientation="vertical"
+    android:padding="28dp">
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="72dp"
+        android:text="@string/sign_in_kicker"
+        android:textAppearance="@style/TextAppearance.Aniga.Kicker"
+        android:textColor="@color/hanko" />
+
+    <TextView
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/sign_in_title"
+        android:textAppearance="@style/TextAppearance.Aniga.Display"
+        android:textSize="40sp" />
+
+    <TextView
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:text="@string/sign_in_body"
+        android:textAppearance="@style/TextAppearance.Aniga.Body"
+        android:textColor="@color/paper_300" />
+
+    <EditText
+        android:id="@+id/email"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="28dp"
+        android:autofillHints="emailAddress"
+        android:background="@color/ink_800"
+        android:hint="@string/sign_in_email"
+        android:importantForAutofill="yes"
+        android:inputType="textEmailAddress"
+        android:padding="14dp"
+        android:textAppearance="@style/TextAppearance.Aniga.Body"
+        android:textColor="@color/paper_100"
+        android:textColorHint="@color/paper_500" />
+
+    <EditText
+        android:id="@+id/password"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:autofillHints="password"
+        android:background="@color/ink_800"
+        android:hint="@string/sign_in_password"
+        android:importantForAutofill="yes"
+        android:inputType="textPassword"
+        android:padding="14dp"
+        android:textAppearance="@style/TextAppearance.Aniga.Body"
+        android:textColor="@color/paper_100"
+        android:textColorHint="@color/paper_500" />
+
+    <TextView
+        android:id="@+id/message"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="14dp"
+        android:textAppearance="@style/TextAppearance.Aniga.Meta"
+        android:textColor="@color/hanko"
+        android:visibility="gone" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/enter"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="20dp"
+        android:text="@string/sign_in_enter" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/create"
+        style="@style/Widget.Material3.Button.OutlinedButton"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/sign_in_create"
+        android:textColor="@color/paper_100" />
+
+    <com.google.android.material.button.MaterialButton
+        android:id="@+id/sign_out"
+        style="@style/Widget.Material3.Button.TextButton"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="8dp"
+        android:text="@string/sign_in_out"
+        android:textColor="@color/paper_500" />
+
+    <ProgressBar
+        android:id="@+id/busy"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="12dp"
+        android:visibility="gone" />
+</LinearLayout>

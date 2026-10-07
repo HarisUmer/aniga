@@ -1,0 +1,112 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <!-- Display: Anton, always uppercase, used like manga cover lettering. -->
+    <style name="TextAppearance.Aniga.Display" parent="">
+        <item name="android:fontFamily">@font/anton_regular</item>
+        <item name="fontFamily">@font/anton_regular</item>
+        <item name="android:textSize">34sp</item>
+        <item name="android:letterSpacing">0.02</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/paper_100</item>
+    </style>
+
+    <style name="TextAppearance.Aniga.Headline" parent="TextAppearance.Aniga.Display">
+        <item name="android:textSize">24sp</item>
+    </style>
+
+    <style name="TextAppearance.Aniga.Title" parent="">
+        <item name="android:fontFamily">@font/plex_sans_semibold</item>
+        <item name="fontFamily">@font/plex_sans_semibold</item>
+        <item name="android:textSize">16sp</item>
+        <item name="android:textColor">@color/paper_100</item>
+    </style>
+
+    <style name="TextAppearance.Aniga.Body" parent="">
+        <item name="android:fontFamily">@font/plex_sans_regular</item>
+        <item name="fontFamily">@font/plex_sans_regular</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:lineSpacingMultiplier">1.35</item>
+        <item name="android:textColor">@color/paper_300</item>
+    </style>
+
+    <style name="TextAppearance.Aniga.Label" parent="">
+        <item name="android:fontFamily">@font/plex_sans_medium</item>
+        <item name="fontFamily">@font/plex_sans_medium</item>
+        <item name="android:textSize">13sp</item>
+    </style>
+
+    <!-- Kicker / meta: monospace caps, like the issue number on a magazine spine. -->
+    <style name="TextAppearance.Aniga.Kicker" parent="">
+        <item name="android:fontFamily">@font/plex_mono_medium</item>
+        <item name="fontFamily">@font/plex_mono_medium</item>
+        <item name="android:textSize">11sp</item>
+        <item name="android:letterSpacing">0.12</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textColor">@color/paper_500</item>
+    </style>
+
+    <style name="TextAppearance.Aniga.Meta" parent="TextAppearance.Aniga.Kicker">
+        <item name="android:letterSpacing">0.04</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="Widget.Aniga.Button" parent="Widget.Material3.Button">
+        <item name="backgroundTint">@color/hanko</item>
+        <item name="android:textColor">@color/paper_100</item>
+        <item name="cornerRadius">2dp</item>
+        <item name="android:fontFamily">@font/plex_mono_medium</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Widget.Aniga.Button.Ghost" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/paper_100</item>
+        <item name="strokeColor">@color/ink_600</item>
+        <item name="cornerRadius">2dp</item>
+        <item name="android:fontFamily">@font/plex_mono_medium</item>
+        <item name="android:letterSpacing">0.1</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">12sp</item>
+    </style>
+
+    <style name="Widget.Aniga.Button.Mode" parent="Widget.Material3.Button.OutlinedButton">
+        <item name="android:textColor">@color/mode_text</item>
+        <item name="backgroundTint">@color/mode_bg</item>
+        <item name="strokeColor">@color/ink_600</item>
+        <item name="cornerRadius">2dp</item>
+        <item name="android:fontFamily">@font/plex_mono_medium</item>
+        <item name="android:letterSpacing">0.08</item>
+        <item name="android:textAllCaps">true</item>
+        <item name="android:textSize">11sp</item>
+    </style>
+
+    <style name="ShapeAppearance.Aniga.Cover" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">3dp</item>
+    </style>
+
+    <style name="ShapeAppearance.Aniga.Round" parent="">
+        <item name="cornerFamily">rounded</item>
+        <item name="cornerSize">50%</item>
+    </style>
+
+    <style name="Widget.Aniga.BottomNav" parent="Widget.Material3.BottomNavigationView">
+        <item name="android:background">@color/ink_950</item>
+        <item name="itemIconTint">@color/nav_item</item>
+        <item name="itemTextColor">@color/nav_item</item>
+        <item name="itemActiveIndicatorStyle">@style/Widget.Aniga.NavIndicator</item>
+        <item name="itemTextAppearanceActive">@style/TextAppearance.Aniga.NavLabel</item>
+        <item name="itemTextAppearanceInactive">@style/TextAppearance.Aniga.NavLabel</item>
+        <item name="labelVisibilityMode">labeled</item>
+    </style>
+
+    <style name="Widget.Aniga.NavIndicator" parent="Widget.Material3.BottomNavigationView.ActiveIndicator">
+        <item name="android:color">@color/hanko_wash</item>
+        <item name="shapeAppearance">@style/ShapeAppearance.Aniga.Cover</item>
+    </style>
+
+    <style name="TextAppearance.Aniga.NavLabel" parent="TextAppearance.Aniga.Kicker">
+        <item name="android:textSize">10sp</item>
+    </style>
+</resources>

@@ -1,0 +1,5 @@
+numpy>=2.0
+# Next phase (model training), see learning/research/recommender-research-proposal.md:
+# torch
+# scikit-learn
+# pandas

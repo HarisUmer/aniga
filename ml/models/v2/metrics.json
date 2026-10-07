@@ -1,0 +1,254 @@
+{
+ "dataset": {
+  "seed": 11,
+  "users": 500000,
+  "items": 902,
+  "interactions": 15797156,
+  "interactions_per_user": {
+   "mean": 31.6,
+   "median": 22.0
+  },
+  "status_share": {
+   "COMPLETED": 0.52,
+   "CURRENT": 0.229,
+   "DROPPED": 0.15,
+   "PLANNING": 0.07,
+   "PAUSED": 0.031
+  },
+  "ratings": 6515041,
+  "rating_mean": 7.15,
+  "rating_hist": {
+   "1": 16029,
+   "2": 62489,
+   "3": 185125,
+   "4": 388145,
+   "5": 642973,
+   "6": 933605,
+   "7": 1230062,
+   "8": 1327763,
+   "9": 1029732,
+   "10": 699118
+  },
+  "by_type": {
+   "ANIME": 8702602,
+   "MANGA": 4109482,
+   "MANHWA": 2176115,
+   "MANHUA": 808957
+  },
+  "segments": {
+   "both": 224719,
+   "watcher": 150053,
+   "reader": 125228
+  },
+  "feature_dims": {
+   "genres": 17,
+   "tags": 170
+  },
+  "seconds": 47.4
+ },
+ "split": {
+  "rule": "last 20% by day for users with >= 8 titles",
+  "relevant_signal": 0.25,
+  "val_users": 10000,
+  "test_users": 50000
+ },
+ "ease": {
+  "variant": "positive",
+  "lambda": 800.0
+ },
+ "tower": {
+  "dim": 64,
+  "epochs": 12,
+  "features": 191
+ },
+ "blend_weights": {
+  "ease": 0.05,
+  "tower": 0.6,
+  "content": 0.1,
+  "pop": 0.0,
+  "type": 0.05,
+  "mpop": 0.0
+ },
+ "blend_short_weights": {
+  "ease": 0.0,
+  "tower": 0.45,
+  "content": 0.05,
+  "pop": 0.2,
+  "type": 0.05,
+  "mpop": 0.0
+ },
+ "short_max_history": 10,
+ "test": {
+  "pop": {
+   "recall@10": 0.057,
+   "recall@20": 0.0958,
+   "ndcg@10": 0.0406,
+   "bad@10": 0.0025,
+   "coverage@10": 0.055,
+   "users": 50000
+  },
+  "content": {
+   "recall@10": 0.063,
+   "recall@20": 0.1092,
+   "ndcg@10": 0.0445,
+   "bad@10": 0.002,
+   "coverage@10": 1.0,
+   "users": 50000
+  },
+  "ease": {
+   "recall@10": 0.1073,
+   "recall@20": 0.1728,
+   "ndcg@10": 0.0798,
+   "bad@10": 0.002,
+   "coverage@10": 0.664,
+   "users": 50000
+  },
+  "ease_full": {
+   "recall@10": 0.1093,
+   "recall@20": 0.176,
+   "ndcg@10": 0.0815,
+   "bad@10": 0.0019,
+   "coverage@10": 0.721,
+   "users": 50000
+  },
+  "tower": {
+   "recall@10": 0.1113,
+   "recall@20": 0.1795,
+   "ndcg@10": 0.0821,
+   "bad@10": 0.0023,
+   "coverage@10": 0.426,
+   "users": 50000
+  },
+  "type": {
+   "recall@10": 0.0354,
+   "recall@20": 0.0587,
+   "ndcg@10": 0.0253,
+   "bad@10": 0.0037,
+   "coverage@10": 0.69,
+   "users": 50000
+  },
+  "blend_v2": {
+   "recall@10": 0.114,
+   "recall@20": 0.182,
+   "ndcg@10": 0.0841,
+   "bad@10": 0.002,
+   "coverage@10": 0.557,
+   "users": 50000
+  },
+  "blend": {
+   "recall@10": 0.1147,
+   "recall@20": 0.1843,
+   "ndcg@10": 0.085,
+   "bad@10": 0.0019,
+   "coverage@10": 0.535,
+   "users": 50000
+  }
+ },
+ "cold_start_3_titles": {
+  "pop": {
+   "recall@10": 0.0497,
+   "recall@20": 0.0842,
+   "ndcg@10": 0.034,
+   "bad@10": 0.0019,
+   "coverage@10": 0.014,
+   "users": 20000
+  },
+  "content": {
+   "recall@10": 0.0308,
+   "recall@20": 0.0581,
+   "ndcg@10": 0.0205,
+   "bad@10": 0.0016,
+   "coverage@10": 1.0,
+   "users": 20000
+  },
+  "ease": {
+   "recall@10": 0.0599,
+   "recall@20": 0.1032,
+   "ndcg@10": 0.0412,
+   "bad@10": 0.0019,
+   "coverage@10": 0.882,
+   "users": 20000
+  },
+  "tower": {
+   "recall@10": 0.067,
+   "recall@20": 0.1182,
+   "ndcg@10": 0.0454,
+   "bad@10": 0.0019,
+   "coverage@10": 0.548,
+   "users": 20000
+  },
+  "blend_v2": {
+   "recall@10": 0.0642,
+   "recall@20": 0.1124,
+   "ndcg@10": 0.043,
+   "bad@10": 0.0019,
+   "coverage@10": 0.684,
+   "users": 20000
+  },
+  "blend": {
+   "recall@10": 0.0722,
+   "recall@20": 0.1241,
+   "ndcg@10": 0.0489,
+   "bad@10": 0.0019,
+   "coverage@10": 0.431,
+   "users": 20000
+  }
+ },
+ "diagnostics": {
+  "tower": {
+   "type_leak@10": 0.0006,
+   "ndcg_by_history": {
+    "<=10": 0.0454,
+    "11-30": 0.0671,
+    ">30": 0.1185
+   },
+   "ndcg_by_segment": {
+    "both": 0.062,
+    "reader": 0.0869,
+    "watcher": 0.1052
+   },
+   "leak_by_segment": {
+    "both": 0.0012,
+    "reader": 0.0003,
+    "watcher": 0.0
+   }
+  },
+  "blend_v2": {
+   "type_leak@10": 0.0005,
+   "ndcg_by_history": {
+    "<=10": 0.0451,
+    "11-30": 0.0686,
+    ">30": 0.1231
+   },
+   "ndcg_by_segment": {
+    "both": 0.0642,
+    "reader": 0.0881,
+    "watcher": 0.1086
+   },
+   "leak_by_segment": {
+    "both": 0.001,
+    "reader": 0.0002,
+    "watcher": 0.0
+   }
+  },
+  "blend": {
+   "type_leak@10": 0.0003,
+   "ndcg_by_history": {
+    "<=10": 0.0447,
+    "11-30": 0.0681,
+    ">30": 0.1259
+   },
+   "ndcg_by_segment": {
+    "both": 0.0643,
+    "reader": 0.0888,
+    "watcher": 0.1099
+   },
+   "leak_by_segment": {
+    "both": 0.0005,
+    "reader": 0.0002,
+    "watcher": 0.0
+   }
+  }
+ },
+ "seconds": 310.2
+}
