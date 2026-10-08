@@ -70,7 +70,8 @@ public class ChapterAdapter extends RecyclerView.Adapter<ChapterAdapter.Holder> 
         StringBuilder meta = new StringBuilder();
         if (episodes) meta.append(c.group);
         else if (c.isExternal()) meta.append("OFFICIAL SITE ↗");
-        else meta.append(c.pages).append(c.pages == 1 ? " page" : " pages");
+        else if (c.pages > 0) meta.append(c.pages).append(c.pages == 1 ? " page" : " pages");
+        else meta.append("open to read");
         if (!episodes && c.group != null && !c.group.isEmpty()) meta.append("  ·  ").append(c.group);
         if (c.publishedAt != null && c.publishedAt.length() >= 10) meta.append("  ·  ").append(c.publishedAt, 0, 10);
         h.meta.setText(meta);

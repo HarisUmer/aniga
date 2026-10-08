@@ -50,7 +50,7 @@ backend/src/main/java/com/aniga/backend/
   media/        catalog + detail          read/       source adapters + /api/read
   user/         users, library            recommend/  V1 + V2 recommenders
   source/       extension catalog, health search/     BM25 + image search
-backend/src/main/resources/static/                  index.html, console.css, js/console.js
+backend/src/main/resources/static/                  index.html, console.css, js/*.js (core, shelf, detail, reader, …)
 app/src/main/java/com/example/aniga/
   ui/home ui/foryou ui/discover ui/detail ui/reader ui/library ui/shelf ui/widget
   data/ (Api, Session, models)
@@ -111,6 +111,10 @@ See [13](13-search.md).
 - Git repository and CI: backend tests, the console check script, and an Android build.
 - Release signing.
 - Hosted backend (Fly.io or Render) with managed Postgres; HTTPS required for Android release builds.
+
+## A small model on the live machine
+
+Not now. The box has 908 MB of RAM, and a chat model that is actually useful wants several gigabytes on top of Postgres and the API. The disk itself was Ubuntu, a swap file, and the container images; the database is 18 MB. The numbers are in [20-disk-and-memory.md](20-disk-and-memory.md). A chatbot for "find this anime" would not need a model of its own first: it would call the search, the source finder, and the reverse-image route that already exist, and only then a small local model to turn the question into those calls. That second step waits until the machine has room.
 
 ## 3. How to resume work (checklist)
 

@@ -63,14 +63,12 @@ import java.util.Locale;
  *  - a Series straight from a reading source (Discover): goes directly to its chapters, and gains a shelf
  *    if the catalog has a title with the same name.
  */
-public class DetailActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity implements ReadingPane.Host {
 
     private static final String EXTRA_MEDIA = "media";
     private static final String EXTRA_SERIES = "series";
     private static final String EXTRA_CONTINUE = "continue";
     private static final Gson GSON = new Gson();
-
-    private static final int CHAPTER_PAGE = 40;
 
     private Media media;
     private Series series;
@@ -78,24 +76,11 @@ public class DetailActivity extends AppCompatActivity {
     private String type;
     private int accent;
     private int typeColor;
-    private StatusView status;
-    private ChapterAdapter adapter;
-    private TextView chapterCount;
     private ShelfPanel shelf;
-    private final List<Chapter> chapters = new ArrayList<>();
-    private String chapterSource;
-    private String chapterSeriesId;
-    private String chapterLang;
+    private ReadingPane reading;
     private boolean transitionStarted;
-    private int requestSeq;
     private String romajiTitle;
-    private List<Series> sourceHits = new ArrayList<>();
-    private int sourcePick;
-    private int chapterLimit = CHAPTER_PAGE;
-    private boolean pinned;
     private boolean continueRequested;
-    private View readControls;
-    private TextView chaptersMore;
 
     public static void open(Activity from, Media m, @Nullable View cover) {
         launch(from, new Intent(from, DetailActivity.class).putExtra(EXTRA_MEDIA, GSON.toJson(m)), cover);
@@ -188,25 +173,10 @@ public class DetailActivity extends AppCompatActivity {
         fillGenres(media != null ? media.genresOrEmpty() : series.tags);
         findViewById(R.id.chapter_rule).setBackgroundColor(typeColor);
 
-        chapterCount = findViewById(R.id.chapter_count);
-        status = findViewById(R.id.status);
-        status.setBallColor(typeColor);
-        RecyclerView list = findViewById(R.id.chapters);
-        list.setLayoutManager(new LinearLayoutManager(this));
-        adapter = new ChapterAdapter(typeColor, this::openChapter);
-        list.setAdapter(adapter);
         shelf = findViewById(R.id.shelf);
         shelf.setOnChange(this::onShelf);
-
-        readControls = findViewById(R.id.read_controls);
-        chaptersMore = findViewById(R.id.chapters_more);
-        findViewById(R.id.read_start).setOnClickListener(v -> openFirstReadable());
-        findViewById(R.id.read_latest).setOnClickListener(v -> openLastReadable());
-        findViewById(R.id.read_jump).setOnClickListener(v -> showJumpDialog());
-        chaptersMore.setOnClickListener(v -> {
-            chapterLimit += CHAPTER_PAGE;
-            renderChapterWindow();
-        });
+        reading = new ReadingPane(this, this);
+        reading.attach();
 
         animateIn(speed);
         parallax(findViewById(R.id.scroll), speed, cover, banner);
@@ -214,7 +184,7 @@ public class DetailActivity extends AppCompatActivity {
         if (media != null) {
             bindCatalog(media);
         } else {
-            loadChapters(series.source, series.id, series.language);
+            reading.load(series.source, series.id, series.language);
             attachCatalogMatch();
         }
     }
@@ -238,9 +208,9 @@ public class DetailActivity extends AppCompatActivity {
         Api.load(this, Api.get().similar(m.id, 12), this::showSimilar, e -> {
         });
         if (m.isAnime()) {
-            showEpisodes(m, null);
+            reading.showEpisodes(m, null);
         } else {
-            findOnSources();
+            reading.find();
         }
     }
 
@@ -294,8 +264,8 @@ public class DetailActivity extends AppCompatActivity {
             c.setAdapter(new CastAdapter(cast, typeColor));
             reveal(findViewById(R.id.cast_label), c);
         }
-        if (media.isAnime()) showEpisodes(media, gallery);
-        else if (chapters.isEmpty() && romajiTitle != null) findOnSources();
+        if (media.isAnime()) reading.showEpisodes(media, gallery);
+        else if (reading.isEmpty() && romajiTitle != null) reading.find();
     }
 
     private void reveal(View label, View list) {
@@ -320,169 +290,9 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     /** Anime have no pages; each row is "watched up to episode N" and sets shelf progress. */
-    private void showEpisodes(Media m, @Nullable List<MediaDetail.GalleryImage> gallery) {
-        ((TextView) findViewById(R.id.chapters_title)).setText(R.string.detail_episodes);
-        Integer total = m.total();
-        chapters.clear();
-        if (total == null || total == 0) {
-            chapterCount.setText("");
-            status.empty(getString(R.string.anime_note));
-            adapter.submit(chapters);
-            return;
-        }
-        List<String> stillTitles = new ArrayList<>();
-        if (gallery != null) {
-            for (MediaDetail.GalleryImage g : gallery) if ("episode".equals(g.kind)) stillTitles.add(g.caption);
-        }
-        for (int i = 1; i <= total; i++) {
-            Chapter c = new Chapter();
-            c.id = "ep-" + i;
-            c.number = String.valueOf(i);
-            c.title = episodeTitle(stillTitles, i);
-            c.group = getString(R.string.detail_episode_hint);
-            c.pages = -1;
-            chapters.add(c);
-        }
-        status.hide();
-        chapterCount.setText(total + " EP  ·  " + getString(R.string.anime_note_short));
-        adapter.setEpisodes(true);
-        adapter.submit(chapters);
-    }
-
-    /** AniList streaming stills are titled "Episode 3 - Name"; match by the leading number. */
-    private static String episodeTitle(List<String> stills, int n) {
-        for (String s : stills) {
-            if (s == null) continue;
-            String lower = s.toLowerCase(Locale.ROOT);
-            if (lower.startsWith("episode " + n + " ") || lower.startsWith("episode " + n + "-")) {
-                int dash = s.indexOf(" - ");
-                return dash > 0 ? s.substring(dash + 3) : s;
-            }
-        }
-        return null;
-    }
 
     private void onShelf(LibraryState s) {
-        adapter.setReadUpTo(s.progress);
-    }
-
-    // ---- reading sources -----------------------------------------------------------------------
-
-    private void findOnSources() {
-        status.loading(R.string.loading_chapters);
-        String lang = Session.readingLang(this);
-        int seq = ++requestSeq;
-        Api.load(this, Api.get().find(title, lang, aliases(), type), hits -> {
-            if (seq != requestSeq) return;
-            if (hits.isEmpty()) {
-                chapterCount.setText("");
-                status.empty(getString(R.string.empty_chapters_lang, lang.toUpperCase(Locale.ROOT)));
-                return;
-            }
-            showSourceChips(hits);
-        }, e -> status.error(getString(R.string.error_backend), this::findOnSources));
-    }
-
-    private void showSourceChips(List<Series> hits) {
-        sourceHits = hits;
-        sourcePick = 0;
-        ChipGroup group = findViewById(R.id.source_chips);
-        group.removeAllViews();
-        for (int i = 0; i < Math.min(hits.size(), 12); i++) {
-            Series s = hits.get(i);
-            Chip chip = new Chip(this);
-            chip.setId(View.generateViewId());
-            String count = s.chapterCount != null ? s.chapterCount + "  " : "";
-            String lang = s.language != null ? s.language.toUpperCase(Locale.ROOT) + "  " : "";
-            chip.setText(count + lang + s.source);
-            chip.setCheckable(true);
-            chip.setCheckedIconVisible(false);
-            chip.setEnsureMinTouchTargetSize(false);
-            int[][] states = {{android.R.attr.state_checked}, {}};
-            chip.setChipBackgroundColor(new ColorStateList(states,
-                    new int[]{Ui.withAlpha(typeColor, 0.2f), Ui.color(this, R.color.ink_800)}));
-            chip.setChipStrokeColor(new ColorStateList(states, new int[]{typeColor, Ui.color(this, R.color.ink_600)}));
-            chip.setChipStrokeWidth(Ui.dp(this, 1));
-            chip.setTextColor(Ui.color(this, R.color.paper_200));
-            chip.setOnCheckedChangeListener((c, checked) -> {
-                if (checked) loadChapters(s.source, s.id, s.language);
-            });
-            group.addView(chip);
-            if (i == 0) chip.setChecked(true);
-        }
-        findViewById(R.id.source_scroll).setVisibility(hits.size() > 1 ? View.VISIBLE : View.GONE);
-    }
-
-    private String aliases() {
-        StringBuilder b = new StringBuilder();
-        if (media != null && media.nativeTitle != null && !media.nativeTitle.isBlank()) {
-            b.append(media.nativeTitle);
-        }
-        if (romajiTitle != null && !romajiTitle.isBlank()
-                && (media == null || !romajiTitle.equalsIgnoreCase(media.nativeTitle))) {
-            if (b.length() > 0) b.append('|');
-            b.append(romajiTitle);
-        }
-        return b.length() == 0 ? null : b.toString();
-    }
-
-    private void loadChapters(String source, String seriesId, String langHint) {
-        status.loading(R.string.loading_chapters);
-        chapterSource = source;
-        chapterSeriesId = seriesId;
-        String lang = langHint != null && !langHint.isBlank() ? langHint : Session.readingLang(this);
-        chapterLang = lang;
-        int seq = ++requestSeq;
-        adapter.submit(new ArrayList<>());
-        Api.load(this, Api.get().chapters(source, seriesId, lang), all -> {
-            if (seq != requestSeq) return;
-            chapters.clear();
-            chapters.addAll(all);
-            int external = 0;
-            int hosted = 0;
-            for (Chapter c : all) {
-                if (c.isExternal()) external++;
-                else hosted++;
-            }
-            // English lists for licensed manhwa are often official links only. Step to the next
-            // language that actually has pages in the reader.
-            if (hosted == 0 && external > 0 && sourcePick + 1 < Math.min(sourceHits.size(), 12)) {
-                sourcePick++;
-                ChipGroup group = findViewById(R.id.source_chips);
-                if (sourcePick < group.getChildCount()) {
-                    for (int i = 0; i < group.getChildCount(); i++) {
-                        ((Chip) group.getChildAt(i)).setChecked(i == sourcePick);
-                    }
-                }
-                return;
-            }
-            String asked = Session.readingLang(this);
-            String where = source.toUpperCase(Locale.ROOT) + " · " + lang.toUpperCase(Locale.ROOT);
-            String extra = !lang.equalsIgnoreCase(asked) ? " · RICHEST LIST" : "";
-            chapterCount.setText(external > 0 ? all.size() + " ON " + where + " (" + external + " OFFICIAL LINKS)" + extra
-                    : all.size() + " ON " + where + extra);
-            if (chapters.isEmpty()) {
-                readControls.setVisibility(View.GONE);
-                chaptersMore.setVisibility(View.GONE);
-                status.empty(getString(R.string.empty_chapters_lang, lang.toUpperCase(Locale.ROOT)));
-            } else {
-                status.hide();
-                chapterLimit = CHAPTER_PAGE;
-                renderChapterWindow();
-                boolean anyReadable = false;
-                for (Chapter c : chapters) {
-                    if (!c.isExternal()) {
-                        anyReadable = true;
-                        break;
-                    }
-                }
-                readControls.setVisibility(anyReadable ? View.VISIBLE : View.GONE);
-                if (continueRequested && anyReadable) {
-                    continueRequested = false;
-                    continueReading();
-                }
-            }
-        }, e -> status.error(getString(R.string.error_backend), () -> loadChapters(source, seriesId, langHint)));
+        reading.markReadUpTo(s.progress);
     }
 
     /** A series opened from a source gets a shelf when the catalog knows the same title. */
@@ -493,7 +303,6 @@ public class DetailActivity extends AppCompatActivity {
                     media = m;
                     findViewById(R.id.shelf_section).setVisibility(View.VISIBLE);
                     shelf.bind(this, m);
-                    // Pull the catalog's cast / gallery / synopsis for this source-only title.
                     Api.load(this, Api.get().detail(m.id), this::showDetail, e2 -> {
                     });
                     Api.load(this, Api.get().similar(m.id, 12), this::showSimilar, e2 -> {
@@ -501,137 +310,6 @@ public class DetailActivity extends AppCompatActivity {
                     return;
                 }
             }
-        }, e -> {
-        });
-    }
-
-    private void openChapter(int position) {
-        if (position < 0 || position >= chapters.size()) return;
-        Chapter c = chapters.get(position);
-        if (media != null && media.isAnime()) {
-            shelf.setProgress(position + 1);
-            adapter.setReadUpTo(position + 1);
-            return;
-        }
-        if (c.isExternal()) {
-            startActivity(new Intent(Intent.ACTION_VIEW, Uri.parse(c.externalUrl)));
-            return;
-        }
-        pinReadingSource();
-        List<Chapter> readable = new ArrayList<>();
-        int index = 0;
-        for (Chapter ch : chapters) {
-            if (ch.isExternal()) continue;
-            if (ch == c) index = readable.size();
-            readable.add(ch);
-        }
-        ReaderActivity.open(this, title, type, chapterSource,
-                chapterLang != null ? chapterLang : Session.readingLang(this),
-                media != null ? media.id : -1, readable, index);
-    }
-
-    private void renderChapterWindow() {
-        int limit = Math.min(chapterLimit, chapters.size());
-        adapter.submit(new ArrayList<>(chapters.subList(0, limit)));
-        ((RecyclerView) findViewById(R.id.chapters)).scheduleLayoutAnimation();
-        int remaining = chapters.size() - limit;
-        if (remaining > 0) {
-            chaptersMore.setVisibility(View.VISIBLE);
-            chaptersMore.setText(remaining <= CHAPTER_PAGE
-                    ? getString(R.string.detail_chapters_all, chapters.size())
-                    : getString(R.string.detail_chapters_more, CHAPTER_PAGE));
-        } else {
-            chaptersMore.setVisibility(View.GONE);
-        }
-    }
-
-    /** Opens the first readable chapter numbered past the shelf progress, else the first unread one. */
-    private void continueReading() {
-        if (media == null || media.id <= 0) {
-            openFirstReadable();
-            return;
-        }
-        Api.load(this, Api.get().libraryEntry(Session.userId(this), media.id), st -> {
-            int progress = st != null ? st.progress : 0;
-            for (int i = 0; i < chapters.size(); i++) {
-                Chapter c = chapters.get(i);
-                if (!c.isExternal() && ChapterAdapter.number(c) > progress) {
-                    openChapter(i);
-                    return;
-                }
-            }
-            openFirstReadable();
-        }, e -> openFirstReadable());
-    }
-
-    private void openFirstReadable() {
-        for (int i = 0; i < chapters.size(); i++) {
-            if (!chapters.get(i).isExternal()) {
-                openChapter(i);
-                return;
-            }
-        }
-    }
-
-    private void openLastReadable() {
-        for (int i = chapters.size() - 1; i >= 0; i--) {
-            if (!chapters.get(i).isExternal()) {
-                openChapter(i);
-                return;
-            }
-        }
-    }
-
-    private void showJumpDialog() {
-        final android.widget.EditText input = new android.widget.EditText(this);
-        input.setInputType(android.text.InputType.TYPE_CLASS_NUMBER | android.text.InputType.TYPE_NUMBER_FLAG_DECIMAL);
-        input.setHint(R.string.detail_jump_hint);
-        int pad = (int) Ui.dp(this, 20);
-        new androidx.appcompat.app.AlertDialog.Builder(this)
-                .setTitle(R.string.detail_jump_title)
-                .setView(input)
-                .setPositiveButton(android.R.string.ok, (d, w) -> jumpToChapter(input.getText().toString().trim()))
-                .setNegativeButton(android.R.string.cancel, null)
-                .create()
-                .show();
-        input.setPadding(pad, pad / 2, pad, 0);
-    }
-
-    private void jumpToChapter(String raw) {
-        if (raw == null || raw.isEmpty()) return;
-        double want;
-        try {
-            want = Double.parseDouble(raw);
-        } catch (NumberFormatException e) {
-            return;
-        }
-        for (int i = 0; i < chapters.size(); i++) {
-            if (Math.abs(ChapterAdapter.number(chapters.get(i)) - want) < 0.001) {
-                openChapter(i);
-                return;
-            }
-        }
-        android.widget.Toast.makeText(this, getString(R.string.detail_jump_missing, raw),
-                android.widget.Toast.LENGTH_SHORT).show();
-    }
-
-    /** Puts the title on the shelf as CURRENT and pins the source, so Home can continue and updates can follow it. */
-    private void pinReadingSource() {
-        if (media == null || media.id <= 0 || pinned) return;
-        pinned = true;
-        double known = 0;
-        for (Chapter c : chapters) {
-            double n = ChapterAdapter.number(c);
-            if (n > known) known = n;
-        }
-        LibraryState.Update update = new LibraryState.Update("CURRENT", null, null)
-                .source(chapterSource, chapterSeriesId, title,
-                        chapterLang != null ? chapterLang : Session.readingLang(this), known > 0 ? known : null);
-        Api.load(this, Api.get().updateLibrary(Session.userId(this), media.id, update), s -> {
-            com.example.aniga.data.Progress.put(s);
-            android.widget.Toast.makeText(this,
-                    getString(R.string.detail_added_library, chapterSource.toUpperCase(Locale.ROOT)),
-                    android.widget.Toast.LENGTH_SHORT).show();
         }, e -> {
         });
     }
@@ -673,8 +351,8 @@ public class DetailActivity extends AppCompatActivity {
             share.put("kind", "reading");
         }
         if (media != null && media.id > 0) share.put("mediaId", media.id);
-        share.put("source", chapterSource);
-        share.put("seriesId", chapterSeriesId);
+        share.put("source", reading.source());
+        share.put("seriesId", reading.seriesId());
         share.put("title", title);
         share.put("coverUrl", media != null ? media.coverUrl : (series != null ? series.coverUrl : null));
         share.put("mediaType", type);
@@ -847,5 +525,23 @@ public class DetailActivity extends AppCompatActivity {
                 nativeName = v.findViewById(R.id.native_name);
             }
         }
+    }
+
+    @Override public Media media() { return media; }
+
+    @Override public String title() { return title; }
+
+    @Override public String type() { return type; }
+
+    @Override public int typeColor() { return typeColor; }
+
+    @Override public ShelfPanel shelf() { return shelf; }
+
+    @Override public String romaji() { return romajiTitle; }
+
+    @Override public boolean takeContinue() {
+        boolean go = continueRequested;
+        continueRequested = false;
+        return go;
     }
 }

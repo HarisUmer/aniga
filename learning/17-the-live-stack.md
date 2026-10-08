@@ -55,7 +55,7 @@ A controller method does not choose who you are. `AuthFilter` reads the bearer t
 
 Admin actions are a second lock. Creating a user, reloading the model, and starting a source health run need the header `X-Admin-Token` to match `ANIGA_ADMIN_TOKEN`. Catalog search and chapter reading stay open, so a reader can look around. `/api/health` stays open and does not list accounts.
 
-Virtual threads are turned on in `application.yml`. A chat poll or a slow source call does not need its own platform thread. The heap is capped at 384 MB because the box has under a gigabyte of RAM.
+Virtual threads are turned on in `application.yml`. A chat poll or a slow source call does not need its own platform thread. The heap is capped at 256 MB. The box is a `t3.micro`: 908 MB of RAM and an 8 GB disk. How that disk filled, and why the swap file is 512 MB, is [20-disk-and-memory.md](20-disk-and-memory.md).
 
 ---
 

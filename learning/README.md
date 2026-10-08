@@ -149,6 +149,8 @@
 
 ## The notes
 
+Start with [the one module](19-the-one-module.md) if you want the whole build in a single sitting: what it does, how a tap becomes a chapter, and what we looked at and left alone.
+
 The screens above are the pitch. The pages below are the making of them, for anyone who wants the longer story.
 
 | | |
@@ -171,4 +173,7 @@ The screens above are the pitch. The pages below are the making of them, for any
 | [Speed and motion](16-performance-and-motion.md) | A faster find, and movement with a reason |
 | [Questions worth asking](interview-defense.md) | Short answers, if someone presses |
 | [A research sketch](research/recommender-research-proposal.md) | An idea for a later model |
+| [The live stack](17-the-live-stack.md) | The machine the shelf is actually running on |
 | [Adding a reading source](18-adding-a-source.md) | The file, the records, and the one class that registers itself |
+| [The whole thing, once](19-the-one-module.md) | One sitting: what we built, how, and what we decided not to |
+| [The disk and the memory](20-disk-and-memory.md) | Why an 8 GB disk filled, and what the 1 GB of RAM is doing |

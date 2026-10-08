@@ -173,12 +173,19 @@ public class RecommenderV2 {
             double[] p = new double[n];
             for (int c = 0; c < n; c++) {
                 Media m = candidates.get(c);
-                p[c] = Math.log1p(m.popularity()) + 0.02 * (m.averageScore() == null ? 60 : m.averageScore());
+                double listed = m.averageScore() == null ? 70 : m.averageScore();
+                // A 90% title should be able to pass a bigger, poorly scored one before anyone has rated anything.
+                p[c] = Math.log1p(m.popularity()) + 0.12 * (listed - 70);
             }
             double[] zp = zscore(p);
             for (int c = 0; c < n; c++) {
-                base.add(new Recommendation(candidates.get(c), zp[c], 0, 0, new HashMap<>(Map.of("pop", round(zp[c]))),
-                        new ArrayList<>(List.of("popular on Aniga — rate or track a few titles to personalise this")),
+                Media m = candidates.get(c);
+                Integer listed = m.averageScore();
+                String why = listed != null && listed >= 80
+                        ? "popular on Aniga, and the catalog scores it " + listed + "%"
+                        : "popular on Aniga — rate or track a few titles to personalise this";
+                base.add(new Recommendation(m, zp[c], 0, 0, new HashMap<>(Map.of("pop", round(zp[c]))),
+                        new ArrayList<>(List.of(why)),
                         null, null, "EXPLOIT"));
             }
             return finish(userId, base, online, prefs, seen, rewards, limit, track);

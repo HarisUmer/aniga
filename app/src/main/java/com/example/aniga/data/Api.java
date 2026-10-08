@@ -1,6 +1,7 @@
 package com.example.aniga.data;
 
 import android.content.Context;
+import android.util.Log;
 
 import androidx.annotation.NonNull;
 
@@ -49,7 +50,14 @@ public final class Api {
                         if (token != null && !token.isEmpty()) {
                             request = request.newBuilder().header("Authorization", "Bearer " + token).build();
                         }
-                        return chain.proceed(request);
+                        long started = System.nanoTime();
+                        okhttp3.Response response = chain.proceed(request);
+                        long ms = (System.nanoTime() - started) / 1_000_000L;
+                        String line = request.method() + " " + request.url().encodedPath()
+                                + " -> " + response.code() + " " + ms + "ms";
+                        if (response.code() >= 400) Log.w(Trace.TAG, line);
+                        else Log.i(Trace.TAG, line);
+                        return response;
                     })
                     .build();
             service = new Retrofit.Builder()

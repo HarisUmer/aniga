@@ -70,7 +70,7 @@ Console tabs now: Shelf · For You · Rate · Discover (Title / Story / Image) �
 
 ## Web test console
 
-`backend/src/main/resources/static/` (`index.html`, `console.css`, `js/console.js`), served at http://localhost:8080. No build step, no framework.
+`backend/src/main/resources/static/` (`index.html`, `console.css`, and `js/` — one file per room, starting at `core.js`), served at http://localhost:8080. No build step, no framework.
 
 | Tab | What it tests |
 |-----|---------------|

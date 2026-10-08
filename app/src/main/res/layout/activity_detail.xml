@@ -290,9 +290,13 @@
                 <androidx.recyclerview.widget.RecyclerView
                     android:id="@+id/chapters"
                     android:layout_width="match_parent"
-                    android:layout_height="wrap_content"
-                    android:layoutAnimation="@anim/layout_rise"
-                    android:nestedScrollingEnabled="false" />
+                    android:layout_height="420dp"
+                    android:background="@color/ink_900"
+                    android:fadeScrollbars="false"
+                    android:nestedScrollingEnabled="true"
+                    android:overScrollMode="never"
+                    android:paddingEnd="4dp"
+                    android:scrollbars="vertical" />
 
                 <TextView
                     android:id="@+id/chapters_more"

@@ -65,6 +65,11 @@ Robustness (`tools/image_variants.ps1`, Your Lie in April cover): original, mirr
 
 Android already uses `RecyclerView` everywhere, which is virtualization by design.
 
+The chapter list used to grow the whole detail sheet. Scrolling a long series moved the cover, the synopsis, and the score with it. Both clients now keep that list in its own box:
+
+- **Web:** `virtualList` scrolls inside `#dChapters` (max about 58vh, its own scrollbar). Jump-to writes `scrollTop` on that box, not on the sheet.
+- **Android:** the chapter `RecyclerView` is 420dp tall with a visible scrollbar. A touch on it calls `requestDisallowInterceptTouchEvent`, so the page behind it does not move.
+
 ## 4. Episodes and progress on every cover
 
 - **Web:** `metaOf(m)` shows "EP 3 / 220 · 217 left", or "500 EP" when the title is not on your shelf. A thin bar on the cover, coloured by status, shows the fraction seen.

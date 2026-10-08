@@ -1,6 +1,8 @@
 package com.aniga.backend.auth;
 
 import java.io.IOException;
+import java.nio.charset.StandardCharsets;
+import java.security.MessageDigest;
 import java.util.regex.Matcher;
 import java.util.regex.Pattern;
 
@@ -21,7 +23,7 @@ import jakarta.servlet.http.HttpServletResponse;
  * path to be the signed-in user. A few routes need an admin token on top.
  */
 @Component
-@Order(Ordered.HIGHEST_PRECEDENCE)
+@Order(Ordered.HIGHEST_PRECEDENCE + 1)
 public class AuthFilter extends OncePerRequestFilter {
 
     public static final String USER_ID = "aniga.userId";
@@ -49,6 +51,7 @@ public class AuthFilter extends OncePerRequestFilter {
             throws ServletException, IOException {
         String path = request.getRequestURI();
         String method = request.getMethod();
+        harden(response);
 
         Long session = resolveSession(request);
         if (session != null) {
@@ -56,7 +59,7 @@ public class AuthFilter extends OncePerRequestFilter {
         }
 
         if (isAdminRoute(method, path)) {
-            if (adminToken.isEmpty() || !adminToken.equals(bearer(request.getHeader("X-Admin-Token")))) {
+            if (adminToken.isEmpty() || !same(adminToken, bearer(request.getHeader("X-Admin-Token")))) {
                 deny(response, 403, "Admin token required");
                 return;
             }
@@ -113,6 +116,19 @@ public class AuthFilter extends OncePerRequestFilter {
 
     private static String bearer(String raw) {
         return raw == null ? "" : raw.trim();
+    }
+
+    /** Lengths differ fast; equal lengths compare without an early exit on the first wrong byte. */
+    private static boolean same(String a, String b) {
+        return MessageDigest.isEqual(a.getBytes(StandardCharsets.UTF_8), b.getBytes(StandardCharsets.UTF_8));
+    }
+
+    /** Headers that do not break the console. A strict script policy would, because the page is one document. */
+    private static void harden(HttpServletResponse response) {
+        response.setHeader("X-Content-Type-Options", "nosniff");
+        response.setHeader("X-Frame-Options", "SAMEORIGIN");
+        response.setHeader("Referrer-Policy", "no-referrer");
+        response.setHeader("Permissions-Policy", "camera=(), microphone=(), geolocation=()");
     }
 
     private static void deny(HttpServletResponse response, int status, String detail) throws IOException {

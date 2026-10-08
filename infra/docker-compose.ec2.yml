@@ -14,6 +14,19 @@ services:
     volumes:
       - aniga-pgdata:/var/lib/postgresql/data
       - ./db/init:/docker-entrypoint-initdb.d:ro
+    # t3.micro has ~1 GB RAM. Defaults (128 MB buffers, a 4 GB cache hint, 100 connections)
+    # reserve memory this box does not have.
+    command:
+      - postgres
+      - -c
+      - shared_buffers=32MB
+      - -c
+      - effective_cache_size=256MB
+      - -c
+      - max_connections=30
+      - -c
+      - work_mem=2MB
+    mem_limit: 192m
     healthcheck:
       test: ["CMD-SHELL", "pg_isready -U ${POSTGRES_USER:-aniga} -d ${POSTGRES_DB:-aniga}"]
       interval: 5s
@@ -32,8 +45,9 @@ services:
       FIREBASE_API_KEY: ${FIREBASE_API_KEY:?set in .env}
       ANIGA_SESSION_SECRET: ${ANIGA_SESSION_SECRET:?set in .env}
       ANIGA_ADMIN_TOKEN: ${ANIGA_ADMIN_TOKEN:?set in .env}
-      # Keep the heap small; this box has ~900 MB RAM plus swap.
-      JAVA_TOOL_OPTIONS: "-Xmx384m -XX:MaxMetaspaceSize=160m -XX:+UseSerialGC"
+      # Heap cap stays under the 1 GB of RAM. A 512 MB swap file is the overflow, not a second memory bank.
+      JAVA_TOOL_OPTIONS: "-Xmx256m -XX:MaxMetaspaceSize=96m -XX:+UseSerialGC"
+    mem_limit: 400m
     depends_on:
       postgres:
         condition: service_healthy
@@ -50,6 +64,7 @@ services:
       - ./download:/srv/download:ro
       - caddy-data:/data
       - caddy-config:/config
+    mem_limit: 128m
     depends_on:
       - backend
 

@@ -183,3 +183,28 @@ Unlicensed index/mirror scrapers were not added. Extra chapters come from other 
 | 3 | Friend requests, global and group rooms, shared shelves, reading type, taste matches | Circle tab showed The Explorer, Mina, and a shared Attack on Titan |
 | 4 | APK built against the EC2 URL, served at `/download/aniga.apk` | Phone browsers fetch it over HTTP; the app still calls the API over HTTPS |
 | 5 | [17-the-live-stack.md](17-the-live-stack.md) | The picture, the steps, and the Spring Boot path |
+
+## Session 8 — a chapter panel, a log line, a new APK (2026-10-07)
+
+**Request:** keep the chapter list in its own scroller, look at security and recommendations, then log what the phone does and ship a tested APK.
+
+| Step | What was done | Result |
+|---|---|---|
+| 1 | Chapter list scrolls inside its own box on the web and on the phone | The cover and the score stay still |
+| 2 | Cold start gives the catalog score a real say | A well-scored smaller title can pass a bigger, poorly scored one |
+| 3 | Response headers, and a constant-time admin-token compare | Framing, sniffing, and referrers are refused |
+| 4 | `AccessLog` on the API and `Trace` on the phone | One line per call: method, path, status, milliseconds. No token |
+| 5 | [19-the-one-module.md](19-the-one-module.md) | The build in one sitting |
+| 6 | Installed the debug APK on the Pixel emulator, signed in as the existing reader | `GET /api/read/find -> 200` then `find · A Returner's Magic Should Be Special -> 5 sources` and `chapters · mangageko en -> 269`. Swiping the list moved chapter 1 off and left the title where it was. A chapter with no page count yet said "0 pages"; it now says "open to read". |
+
+## Session 9 — the disk was not the database (2026-10-08)
+
+**Request:** the 8 GB server looked full. Find out whether vectors, image descriptions, or scraped pages were the cause, and make the box stop filling up.
+
+| Step | What was done | Result |
+|---|---|---|
+| 1 | Measured the live volume, Docker, and every Postgres table | The disk is 8 GB, the RAM is 908 MB, and the database is 18 MB |
+| 2 | Read the swap file's origin in the system log | Created by hand on 7 Oct as a 2 GB overflow, because the RAM is 1 GB. Hibernation setup had exited without creating it |
+| 3 | Shrunk the swap file to 512 MB and set swappiness to 10 | Root went from about 455 MB free to 2.6 GB free |
+| 4 | Capped the API, Postgres, and Caddy, and lowered the heap and Postgres buffers to fit 1 GB of RAM | Health returned UP. The APK download on port 80 returned 200 |
+| 5 | [20-disk-and-memory.md](20-disk-and-memory.md) | The sizes, what swap is, and what was changed |
